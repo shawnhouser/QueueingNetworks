@@ -55,6 +55,8 @@ pt %>%
    gt() %>%
    tab_header(
       title = md("Event-Oriented Bookkeeping for G/G/1 Queues"))
+
+# TODO: add boolean for interarrival times 
 #########
 # A queueing process is described by a series of symbols and slashes
 # A/B/X/Y/Z where A := interarrival-time distribution, 
