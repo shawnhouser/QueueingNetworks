@@ -3,8 +3,6 @@
 # of a single server with FCFS discipline. 
 ########
 
-arrival <- c(0, 2, 3, 6, 7, 8, 12, 14, 19, 20, 24, 26)
-service <- c(1, 3, 6, 2, 1, 1, 1, 2, 5, 1, 1, 3)
 
 gg1.summary <- function(arrivals, service_times, interarrival = FALSE){
    if(length(arrivals) != length(service_times))
@@ -40,8 +38,12 @@ gg1.summary <- function(arrivals, service_times, interarrival = FALSE){
       L <- lambda*W
       rho <- L - L_q
       p0 <- 1 - rho
-      return(list('df' = df, 'W_q' = W_q, 'W' = W, 'lambda' = lambda,
-                  'L_q' = L_q, 'L' = L, 'rho' = rho, 'p0' = p0))
+      results <- data.frame('Average arrival rate' = lambda, 'utilization' = rho, 
+                            'Idle time' = p0, 'Average time system' = W,
+                            'Average time queue' = W_q, 'Average number system' = L,
+                            'Average number queue' = L_q)
+      
+      return(list('df' = df, 'results' = results))
       
    }
    else{
@@ -67,11 +69,22 @@ gg1.summary <- function(arrivals, service_times, interarrival = FALSE){
    L <- lambda*W
    rho <- L - L_q
    p0 <- 1 - rho
-   return(list('df' = df, 'W_q' = W_q, 'W' = W, 'lambda' = lambda,
-                   'L_q' = L_q, 'L' = L, 'rho' = rho, 'p0' = p0))
+   results <- data.frame('Average arrival rate' = lambda, 'utilization' = rho, 
+                         'Idle time' = p0, 'Average time system' = W,
+                         'Average time queue' = W_q, 'Average number system' = L,
+                         'Average number queue' = L_q)
+   
+   return(list('df' = df, 'results' = results))
    }
 
 }
+
+################################################################################
+# Tests
+################################################################################
+
+arrival <- c(0, 2, 3, 6, 7, 8, 12, 14, 19, 20, 24, 26)
+service <- c(1, 3, 6, 2, 1, 1, 1, 2, 5, 1, 1, 3)
 
 inter <- c(1, 9, 6, 4, 7, 9, 5, 8, 4, 10, 6, 12, 6, 8, 
            9, 5, 7, 8, 8, 7)
