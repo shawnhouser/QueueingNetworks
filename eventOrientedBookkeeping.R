@@ -6,7 +6,7 @@
 
 gg1.summary <- function(arrivals, service_times, interarrival = FALSE){
    if(length(arrivals) != length(service_times))
-      {
+   {
       stop('Arrays must have equal length')
    }
    n <- length(arrivals)
@@ -38,47 +38,46 @@ gg1.summary <- function(arrivals, service_times, interarrival = FALSE){
       L <- lambda*W
       rho <- L - L_q
       p0 <- 1 - rho
-      results <- data.frame('Average arrival rate' = lambda, 'utilization' = rho, 
-                            'Idle time' = p0, 'Average time system' = W,
-                            'Average time queue' = W_q, 'Average number system' = L,
-                            'Average number queue' = L_q)
-      
-      return(list('df' = df, 'results' = results))
+      rnames <- rbind("Average arrival rate", "utilization", 
+                      "Idle time", "Average time in system",
+                      "Average time in queue", "Average number in system", "Average number in queue")
+      eff <- data.frame(cbind(rnames, rbind(lambda, rho, p0, W, W_q, L, L_q)))
+      names(eff)<- c("Definition", "Result")
+      return(list('df' = df, 'eff' = eff))
       
    }
    else{
-   interarrival_times <- c(diff(arrivals), NA)
-   starts_service <- c(0)
-   departure_times <- c(service_times[1] - arrivals[1])
-   for(i in 2:n){
-      starts_service <- append(starts_service, max(departure_times[i-1], arrivals[i]))
-      departure_times <- append(departure_times, starts_service[i] + service_times[i])
+      interarrival_times <- c(diff(arrivals), NA)
+      starts_service <- c(0)
+      departure_times <- c(service_times[1] - arrivals[1])
+      for(i in 2:n){
+         starts_service <- append(starts_service, max(departure_times[i-1], arrivals[i]))
+         departure_times <- append(departure_times, starts_service[i] + service_times[i])
+      }
+      queue_times <- starts_service - arrivals
+      system_times <- queue_times + service_times
+      df <- data.frame(customers = seq(1:n), arrivals = arrivals,
+                       service_times = service_times, 
+                       interarrival_times = interarrival_times, starts_service = starts_service,
+                       departure_times = departure_times, queue_times = queue_times, 
+                       system_times = system_times)
+      
+      W_q <- mean(queue_times)
+      W <- mean(system_times)
+      lambda <- n/departure_times[n]
+      L_q <- lambda*W_q
+      L <- lambda*W
+      rho <- L - L_q
+      p0 <- 1 - rho
+      rnames <- rbind("Average arrival rate", "utilization", 
+                         "Idle time", "Average time system",
+                         "Average time queue", "Average number system", "Average number queue")
+      eff <- data.frame(cbind(rnames, rbind(lambda, rho, p0, W, W_q, L, L_q)))
+      names(eff)<- c("Definition", "Result")
+      return(list('df' = df, 'eff' = eff))
    }
-   queue_times <- starts_service - arrivals
-   system_times <- queue_times + service_times
-   df <- data.frame(customers = seq(1:n), arrivals = arrival_times,
-                    service_times = service_times, 
-                    interarrival_times = interarrival_times, starts_service = starts_service,
-                    departure_times = departure_times, queue_times = queue_times, 
-                    system_times = system_times)
    
-   W_q <- mean(queue_times)
-   W <- mean(system_times)
-   lambda <- n/departure_times[n]
-   L_q <- lambda*W_q
-   L <- lambda*W
-   rho <- L - L_q
-   p0 <- 1 - rho
-   results <- data.frame('Average arrival rate' = lambda, 'utilization' = rho, 
-                         'Idle time' = p0, 'Average time system' = W,
-                         'Average time queue' = W_q, 'Average number system' = L,
-                         'Average number queue' = L_q)
-   
-   return(list('df' = df, 'results' = results))
-   }
-
 }
-
 ################################################################################
 # Tests
 ################################################################################
@@ -94,14 +93,7 @@ serv <- c(3, 7, 9, 9, 10, 4, 8, 5, 5, 3, 6, 3, 5, 4,
 res <- gg1.summary(arrival, service)
 res2 <- gg1.summary(inter, serv, interarrival = TRUE)
 
-res$W_q
-res$W
-
-res$L_q
-res$L
-
-res$lambda
-
+library(gt)
 pt <- res$df
 pt %>% gt()
 
@@ -110,6 +102,21 @@ pt %>%
    tab_header(
       title = md("Event-Oriented Bookkeeping for G/G/1 Queues"))
 
+qt <- res$eff
+qt %>%
+   gt() %>%
+   tab_header(
+      title = md("Measures of Effectiveness for G/G/1 Queues"))
 
-
-
+res2 <- gg1.summary(interarrival, service2, interarrival = TRUE)
+pt <- res2$df
+pt %>%
+   gt() %>%
+   tab_header(
+      title = md("Event-Oriented Bookkeeping for G/G/1 Queues"))
+# Get effectiveness results
+qt <- res2$eff
+qt %>%
+   gt() %>%
+   tab_header(
+      title = md("Measures of Effectiveness for G/G/1 Queues"))
