@@ -87,7 +87,7 @@ gg1.summary <- function(arrivals, service_times, interarrival = FALSE){
       L <- lambda*W
       rho <- L - L_q
       p0 <- 1 - rho
-      rnames <- rbind("Average arrival rate", "utilization", 
+      rnames <- rbind("Average arrival rate", "Utilization", 
                       "Idle time", "Average time in system",
                       "Average time in queue", "Average number in system", "Average number in queue")
       eff <- data.frame(cbind(rnames, round(rbind(lambda, rho, p0, W, W_q, L, L_q), 4)))
@@ -118,7 +118,7 @@ gg1.summary <- function(arrivals, service_times, interarrival = FALSE){
       L <- lambda*W
       rho <- L - L_q
       p0 <- 1 - rho
-      rnames <- rbind("Average arrival rate", "utilization", 
+      rnames <- rbind("Average arrival rate", "Utilization", 
                       "Idle time", "Average time in system",
                       "Average time in queue", "Average number in system", "Average number in queue")
       eff <- data.frame(cbind(rnames, round(rbind(lambda, rho, p0, W, W_q, L, L_q), 4)))
