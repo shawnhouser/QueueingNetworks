@@ -1,10 +1,7 @@
-########
-# Bookkeeping for G/G/1 queues. The analysis is obtained under the assumption
-# of a single server with FCFS discipline.
-########
-
-
-#' Title
+#'Event-Oriented Bookkeeping for G/G/1 queues.
+#'
+#'Bookkeeping for G/G/1 queues. The analysis is obtained under the assumption
+#'of a single server with FCFS discipline.
 #'
 #' @param arrivals Arrival time of customer
 #' @param service_times Service time of customer
