@@ -16,6 +16,9 @@ header-includes:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+<!-- Preview html in github:
+https://htmlpreview.github.io/?https://github.com/angyalkavalcsics/QueueingNetworks/blob/main/QueueingNetworks.html -->
+
 ## Introduction
 
 Queueing theory is the mathematical study of the formation and function of queues.  A basic queueing system is a system where entities arrive at a facility requiring some service, they join a line, and wait for service from one or more servers. The results of queueing analysis can be used to offer faster customer service, increase traffic flow, improve order shipments from a warehouse, or to design data networks and call centers. In this first demonstration, we will use the random events of arrivals and service completions from a general distribution to demonstrate the development of a queue over time. We assume the reader has some previous knowledge of queueing networks. 
