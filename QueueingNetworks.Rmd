@@ -4,6 +4,7 @@ author: "University of Southern Maine"
 date: "9/14/2021"
 output:
   html_document: default
+  word_document: default
   pdf_document: default
 subtitle: Angyalka Valcsics, Pearl Armstrong, Shawn Houser
 header-includes:
@@ -14,8 +15,6 @@ header-includes:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-<!-- Preview html in github:
-https://htmlpreview.github.io/?https://github.com/angyalkavalcsics/QueueingNetworks/blob/main/QueueingNetworks.html -->
 
 ## Introduction
 
@@ -44,7 +43,7 @@ Variable | Definition | Sample relationship
 ------------- | ------------- | -------------
 $A^{(n)}$  | Arrival time of cust. $n$ | 
 $S^{(n)}$  | Service time of cust. $n$ |
-$T^{(n)}$  | Interarrival time cust. $n$ and $n+1$ | $T^{(n)} = A^{(n+1)} - A^{(n)}$
+$T^{(n)}$  | Inter. time cust. $n$ and $n+1$ | $T^{(n)} = A^{(n+1)} - A^{(n)}$
 $U^{(n)}$  | Time cust. $n$ starts service | $U^{(n+1)} = max\{D^{(n)}, A^{(n+1)}\}$
 $D^{(n)}$  |Departure time of cust. $n$ | $D^{(n)} = U^{(n)} + S^{(n)}$
 $W_{q}^{(n)}$  | Time in queue of cust. $n$ | $W_{q}^{(n)} = U^{(n)} - A^{(n)}$
@@ -52,7 +51,7 @@ $W^{(n)}$  | Time in system of cust. $n$ | $W^{(n)} = W_{q}^{(n)} + S^{(n)}$
 
 The analysis is obtained under the assumption of a single server with FCFS discipline. No assumptions are required on the probability laws for the interarrival times or service times. 
 
-The gg1.summary() function takes three inputs. First an input of either the arrival times or the interarrival times, the service times, and a Boolean--set interarrival = TRUE if the first input is interarrival times. The function outputs a data frame with the bookkeeping values for each entity and a data frame which holds some performance measures. Please see the examples that follow.
+The gg1.summary() function takes three inputs. First an input of either the arrival times or the interarrival times, the service times, and a Boolean--set interarrival = TRUE if the first input is interarrival times. The function outputs a data frame with the bookkeeping values for each entity and a data frame which holds some performance measures.The user can access performance measures by name using the $ operator. Please see the examples that follow.
 
 ```{r gg1summayy, echo=FALSE }
 gg1.summary <- function(arrivals, service_times, interarrival = FALSE){
@@ -95,7 +94,8 @@ gg1.summary <- function(arrivals, service_times, interarrival = FALSE){
                       "Average time in queue", "Average number in system", "Average number in queue")
       res <- data.frame(cbind(rnames, round(rbind(lambda, rho, p0, W, W_q, L, L_q), 4)))
       names(res)<- c("Definition", "Result")
-      return(list('bookkeeping' = df, 'res' = res))
+      return(list('bookkeeping' = df, 'res' = res, 'lambda' = lambda,
+             'rho' = rho, 'p0' = p0, 'W' = W, 'W_q' = W_q, 'L' = L, 'L_q' = L_q))
       
    }
    else{
@@ -126,7 +126,8 @@ gg1.summary <- function(arrivals, service_times, interarrival = FALSE){
                       "Average time in queue", "Average number in system", "Average number in queue")
       res <- data.frame(cbind(rnames, round(rbind(lambda, rho, p0, W, W_q, L, L_q), 4)))
       names(res)<- c("Definition", "Result")
-      return(list('bookkeeping' = df, 'res' = res))
+      return(list('bookkeeping' = df, 'res' = res, 'lambda' = lambda,
+             'rho' = rho, 'p0' = p0, 'W' = W, 'W_q' = W_q, 'L' = L, 'L_q' = L_q))
    }
    
 }
@@ -181,5 +182,85 @@ qt2 %>%
       title = md("Measures of Performance for G/G/1 Queues"))
 
 ```
+
+<br />
+Next we consider an M/M/1 Markovian model. Given inputs arrival rate, service rate, and number of servers $c = 1$ the function mm1.summary() returns a data frame of performance measures for the queue and an array of transition probabilities for the first 25 entities. Additionally, by entering "plot_transitions = TRUE", the function will plot these transition probabilities. The user can access performance measures by name using the $ operator. Please consider the following example. 
+
+```{r mm1summayy, echo=FALSE }
+mmc.summary <- function(lambda, mu, c, plot_transitions = FALSE){
+   if(c == 1){
+      rho = lambda/mu
+      if(rho < 1) print("System is stable.")
+      else{stop("System is unstable.")
+      }
+      p_n = integer(26)
+      for(iter in 1:26){
+         p_n[iter] = (rho^iter)*(1-rho)
+         iter = iter + 1
+      }
+      if(plot_transitions == TRUE){
+         num_ent = c(0, 1:25)
+         plot(num_ent, p_n, main="Transition Probabilities",
+              xlab="Number of customers in System",
+              ylab="Probability", pch = 19, col = "blue")
+      }
+      L = rho/(1-rho)
+      L_q = rho^2/(1-rho)
+      W = 1/(mu - lambda)
+      W_q = lambda/(mu*(mu - lambda))
+      U = 1 - p_n[1]
+      I = 1 - rho
+      
+      rnames <- rbind("Average arrival rate", "Utilization", 
+                      "Idle time", "Average time in system",
+                      "Average time in queue", "Average number in system", "Average number in queue")
+      res <- data.frame(cbind(rnames, round(rbind(lambda, rho, I, W, W_q, L, L_q), 4)))
+      names(res)<- c("Definition", "Result")
+      return(list('transition_prob' = p_n, 'res' = res, 'lambda' = lambda, 'rho' = rho, 'p0' = I, 'W' = W, 'W_q' = W_q, 'L' = L, 'L_q' = L_q))
+   }
+   else{
+      print("c = ?")
+   }
+   return(1)
+}
+```
+
+```{r ex3}
+q <- mmc.summary(lambda = 4, mu = 4.4545, c = 1, plot_transitions = TRUE)
+
+library(gt)
+qt <- q$res
+qt %>%
+   gt() %>%
+   tab_header(
+      title = md("Measures of Performance for M/M/1 Queues"))
+```
+
+<br />
+Using the output we can find the probability that there are more than $k$ entities in the system using the formula $P(X \geq k) = \rho^{k}$. Suppose we wanted to find the probability that there are more than $k = 2$ entities in the system.
+
+```{r ex4}
+k = 2
+prob_k_system <- (q$rho)^k
+print(prob_k_system)
+```
+
+Moreover, we could find the probability that an entity spends more than some time $t$ in the queue $P(T_{q} > t) = \rho e^{- \mu (1 - \rho)t}$. Suppose $t = 0.05$.
+
+```{r ex5}
+t = 0.05
+mu = 4.4545
+rho = q$rho
+prob_t_queue <- rho*exp(-mu*(q$p0)*t)
+print(prob_t_queue)
+```
+
+
+
+
+
+
+
+
 
 
