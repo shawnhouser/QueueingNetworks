@@ -1,6 +1,5 @@
 
-
-mmc.summary <- function(lambda = 5, mu = 6, c, 
+mmc.summary <- function(lambda, mu, c, 
                         plot_transitions = FALSE,
                         plot_waitSys = FALSE,
                         plot_waitQ = FALSE){
@@ -12,8 +11,8 @@ mmc.summary <- function(lambda = 5, mu = 6, c,
       c = 50*rho
       p_n = integer(c)
       for(iter in 1:c){
-          p_n[iter] = (rho^iter)*(1-rho)
-          iter = iter + 1
+         p_n[iter] = (rho^iter)*(1-rho)
+         iter = iter + 1
       }
       if(plot_transitions == TRUE){
          num_ent = c(0, 1:(c-1))
@@ -21,17 +20,17 @@ mmc.summary <- function(lambda = 5, mu = 6, c,
               xlab="Number of customers in System",
               ylab="Probability", pch = 19, col = "blue")
       }
+      t = seq(1, 12*rho, by = 1)
+      waitSys_probabilities = (mu - lambda)*exp(-(mu - lambda)*t)
       if(plot_waitSys == TRUE){
-         t = seq(0.25, 12*rho, by = 0.25)
-         waitSys_probabilities = (mu - lambda)*exp(-(mu - lambda)*t)
          plot(t, waitSys_probabilities, main="pdf of T (waiting time in system)",
               xlab="Time Spent in System",
               ylab="Probability", pch = 19, col = "blue")
       }
-      if(plot_waitQ == TRUE){
-         t = seq(0.5,12*rho, by = 0.5)
-         waitQ_probabilities = (mu*rho*(1-rho))*exp(-mu*(1 - rho)*t)
-         plot(c(0, t), c(1 - rho, waitQ_probabilities), main= "pdf of T_q (waiting time in queue)",
+      t = seq(1,12*rho, by = 1)
+      waitQ_probabilities = c(1-rho, (mu*rho*(1-rho))*exp(-mu*(1 - rho)*t))
+      if(plot_waitQ == TRUE){   
+         plot(c(0, t), waitQ_probabilities, main= "pdf of T_q (waiting time in queue)",
               xlab="Time Spent in Queue",
               ylab="Probability", pch = 19, col = "blue")
       }
@@ -48,130 +47,14 @@ mmc.summary <- function(lambda = 5, mu = 6, c,
       res <- data.frame(cbind(rnames, round(rbind(lambda, rho, I, W, W_q, L, L_q), 4)))
       names(res)<- c("Definition", "Result")
       return(list('transition_prob' = p_n, 'res' = res, 'lambda' = lambda,
-             'rho' = rho, 'I' = I, 'W' = W, 'W_q' = W_q, 'L' = L, 'L_q' = L_q))
+                  'rho' = rho, 'p0' = I, 'W' = W, 'W_q' = W_q, 'L' = L, 'L_q' = L_q,
+                  'prob_T' = waitSys_probabilities, 'prob_T_q' = waitQ_probabilities))
    }
    else{
       print("c = ?")
    }
    return(1)
 }
-
-q <- mmc.summary(lambda = 4, mu = 10, c = 1, plot_transitions = TRUE,
-                 plot_waitSys = TRUE, plot_waitQ = TRUE)
-
-library(gt)
-qt <- q$res
-qt %>%
-   gt() %>%
-   tab_header(
-      title = md("Measures of Performance for M/M/1 Queues"))
-q$rho
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
