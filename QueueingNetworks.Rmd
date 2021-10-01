@@ -16,9 +16,6 @@ header-includes:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-<!-- Preview html in github:
-https://htmlpreview.github.io/?https://github.com/angyalkavalcsics/QueueingNetworks/blob/main/QueueingNetworks.html -->
-
 ## Introduction
 
 Queueing theory is the mathematical study of the formation and function of queues.  A basic queueing system is a system where entities arrive at a facility requiring some service, they join a line, and wait for service from one or more servers. The results of queueing analysis can be used to offer faster customer service, increase traffic flow, improve order shipments from a warehouse, or to design data networks and call centers. In this first demonstration, we will use the random events of arrivals and service completions from a general distribution to demonstrate the development of a queue over time. We assume the reader has some previous knowledge of queueing networks. 
@@ -186,25 +183,45 @@ qt2 %>%
 
 ```
 
+## M/M/c Markovian model
+
 <br />
-Next we consider an M/M/1 Markovian model. Given inputs arrival rate, service rate, and number of servers $c = 1$ the function mm1.summary() returns a data frame of performance measures for the queue and an array of transition probabilities for the first 25 entities. Additionally, by entering "plot_transitions = TRUE", the function will plot these transition probabilities. The user can access performance measures by name using the $ operator. Please consider the following example. 
+Next we consider an M/M/1 Markovian model. Given inputs arrival rate, service rate, and number of servers $c = 1$ the function mm1.summary() returns a data frame of performance measures for the queue and an array of transition probabilities for the first 25 entities. Additionally, by entering "plot_transitions = TRUE", the function will plot these transition probabilities. By entering "plot_waitSys = TRUE" the function will plot the probability density function of the waiting time in system and similarly "plot_waitQ = TRUE" will plot the probability density function of the waiting time in queue. The user can access performance measures by name using the $ operator. Please consider the following example. 
 
 ```{r mm1summayy, echo=FALSE }
-mmc.summary <- function(lambda, mu, c, plot_transitions = FALSE){
+mmc.summary <- function(lambda, mu, c, 
+                        plot_transitions = FALSE,
+                        plot_waitSys = FALSE,
+                        plot_waitQ = FALSE){
    if(c == 1){
       rho = lambda/mu
       if(rho < 1) print("System is stable.")
       else{stop("System is unstable.")
       }
-      p_n = integer(26)
-      for(iter in 1:26){
+      c = 50*rho
+      p_n = integer(c)
+      for(iter in 1:c){
          p_n[iter] = (rho^iter)*(1-rho)
          iter = iter + 1
       }
       if(plot_transitions == TRUE){
-         num_ent = c(0, 1:25)
+         num_ent = c(0, 1:(c-1))
          plot(num_ent, p_n, main="Transition Probabilities",
               xlab="Number of customers in System",
+              ylab="Probability", pch = 19, col = "blue")
+      }
+      t = seq(1, 12*rho, by = 1)
+      waitSys_probabilities = (mu - lambda)*exp(-(mu - lambda)*t)
+      if(plot_waitSys == TRUE){
+         plot(t, waitSys_probabilities, main="pdf of T (waiting time in system)",
+              xlab="Time Spent in System",
+              ylab="Probability", pch = 19, col = "blue")
+      }
+      t = seq(1,12*rho, by = 1)
+      waitQ_probabilities = c(1-rho, (mu*rho*(1-rho))*exp(-mu*(1 - rho)*t))
+      if(plot_waitQ == TRUE){   
+         plot(c(0, t), waitQ_probabilities, main= "pdf of T_q (waiting time in queue)",
+              xlab="Time Spent in Queue",
               ylab="Probability", pch = 19, col = "blue")
       }
       L = rho/(1-rho)
@@ -219,17 +236,22 @@ mmc.summary <- function(lambda, mu, c, plot_transitions = FALSE){
                       "Average time in queue", "Average number in system", "Average number in queue")
       res <- data.frame(cbind(rnames, round(rbind(lambda, rho, I, W, W_q, L, L_q), 4)))
       names(res)<- c("Definition", "Result")
-      return(list('transition_prob' = p_n, 'res' = res, 'lambda' = lambda, 'rho' = rho, 'p0' = I, 'W' = W, 'W_q' = W_q, 'L' = L, 'L_q' = L_q))
+      return(list('transition_prob' = p_n, 'res' = res, 'lambda' = lambda,
+                  'rho' = rho, 'p0' = I, 'W' = W, 'W_q' = W_q, 'L' = L, 'L_q' = L_q,
+                  'prob_T' = waitSys_probabilities, 'prob_T_q' = waitQ_probabilities))
    }
    else{
       print("c = ?")
    }
    return(1)
 }
+
 ```
 
 ```{r ex3}
-q <- mmc.summary(lambda = 4, mu = 4.4545, c = 1, plot_transitions = TRUE)
+q <- mmc.summary(lambda = 4, mu = 4.4545, c = 1, plot_transitions = TRUE,
+                 plot_waitQ = TRUE,
+                 plot_waitSys = TRUE)
 
 library(gt)
 qt <- q$res
@@ -248,22 +270,24 @@ prob_k_system <- (q$rho)^k
 print(prob_k_system)
 ```
 
-Moreover, we could find the probability that an entity spends more than some time $t$ in the queue $P(T_{q} > t) = \rho e^{- \mu (1 - \rho)t}$. Suppose $t = 0.05$.
-
+<br />
+Recall that we can also find the following two probabilities. 
+$$P(T > t) = e^{-\mu (1-\rho)t}$$
 ```{r ex5}
-t = 0.05
 mu = 4.4545
-rho = q$rho
-prob_t_queue <- rho*exp(-mu*(q$p0)*t)
-print(prob_t_queue)
+t <- 2
+pr <- exp(-mu*(1 - q$rho)*t)
+print(pr)
 ```
 
+$$P(T_q > t) = \rho e^{-\mu (1-\rho)t}$$
+```{r ex6}
+mu = 4.4545
+t <- 2
+pr2 <- (q$rho)*exp(-mu*(1 - q$rho)*t)
+print(pr2)
+```
 
+<br />
 
-
-
-
-
-
-
-
+Moving on, we have M/M/c/$\infty$/$\infty$ queues. 
