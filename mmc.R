@@ -8,11 +8,10 @@ mmc.summary <- function(lambda, mu, c,
       if(rho < 1) print("System is stable.")
       else{stop("System is unstable.")
       }
-      c = 50*rho
+      c = 25*rho
       p_n = integer(c)
       for(iter in 1:c){
          p_n[iter] = (rho^iter)*(1-rho)
-         iter = iter + 1
       }
       if(plot_transitions == TRUE){
          num_ent = c(0, 1:(c-1))
@@ -23,14 +22,14 @@ mmc.summary <- function(lambda, mu, c,
       t = seq(1, 12*rho, by = 1)
       waitSys_probabilities = (mu - lambda)*exp(-(mu - lambda)*t)
       if(plot_waitSys == TRUE){
-         plot(t, waitSys_probabilities, main="pdf of T (waiting time in system)",
+         plot(t, waitSys_probabilities, main="Waiting Time in System)",
               xlab="Time Spent in System",
               ylab="Probability", pch = 19, col = "blue")
       }
       t = seq(1,12*rho, by = 1)
       waitQ_probabilities = c(1-rho, (mu*rho*(1-rho))*exp(-mu*(1 - rho)*t))
       if(plot_waitQ == TRUE){   
-         plot(c(0, t), waitQ_probabilities, main= "pdf of T_q (waiting time in queue)",
+         plot(c(0, t), waitQ_probabilities, main= "Waiting Time in Queue)",
               xlab="Time Spent in Queue",
               ylab="Probability", pch = 19, col = "blue")
       }
@@ -51,38 +50,45 @@ mmc.summary <- function(lambda, mu, c,
                   'prob_T' = waitSys_probabilities, 'prob_T_q' = waitQ_probabilities))
    }
    else{
-      print("c = ?")
+      rho = lambda/(c*mu)
+      if(rho < 1) print("System is stable.")
+      else{stop("System is unstable.")}
+      # a := offered load
+      a = lambda/mu
+      # find p0
+      l = 0
+      for(n in 0:(c-1)){
+         l <- l + (a^n)/(factorial(n))
+      }
+      r = (a^c)/(factorial(c)*(1-rho))
+      p0 = 1/(l + r)
+      # find pn
+      p_n = c(p0)
+      for(n in 1:c){
+         p_n = append(p_n, ((a^n)/factorial(n))*p0)
+      }
+      for(n in (c+1):(20*c)){
+         p_n = append(p_n, ((a^n)/(factorial(c)*c^(n-c)))*p0)
+      }
+      if(plot_transitions == TRUE){
+         num_ent = length(p_n)
+         plot(c(1:num_ent-1), p_n, main="Transition Probabilities",
+              xlab="Number of customers in System",
+              ylab="Probability", pch = 19, col = "blue")
+      }
+      L_q = ((a^c)*rho/(factorial(c)*(1-rho)^2))*p0
+      W_q = ((a^c)/(factorial(c)*(c*mu)*(1-rho)^2))*p0
+      W = W_q + (1/mu)
+      L = L_q + (lambda/mu)
+      U = rho
+      B = a
+      I = p0
+      rnames <- rbind("Average arrival rate", "Utilization", 
+                      "Idle time", "Mean number busy servers", "Average time in system",
+                      "Average time in queue", "Average number in system", "Average number in queue")
+      res <- data.frame(cbind(rnames, round(rbind(lambda, U, I, B, W, W_q, L, L_q), 4)))
+      names(res)<- c("Definition", "Result")
+      return(list('transition_prob' = p_n, 'res' = res, 'lambda' = lambda,
+                  'rho' = rho, 'p0' = I, 'B' = B, 'W' = W, 'W_q' = W_q, 'L' = L, 'L_q' = L_q))
    }
-   return(1)
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
