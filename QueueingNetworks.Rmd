@@ -186,7 +186,7 @@ qt2 %>%
 
 ## The Birth Death Process
 
-Suppose you want to solve the flow balance equation for a birth-death type queue with finite capacity $n$. Given an array of arrival (birth) rates $\lambda = (\lambda_{0}, \lambda_{1}, \cdots)$ and an array of service (death) rates $\mu = (\mu_{1}, \mu_{2}, \cdots)$, the function BD.solve($\lambda$, $\mu$) will return the distribution of number of customers in the system. Please see the following example with $\lambda = (3, 2, 1)$ and $\mu = (1, 2, 2)$.
+Suppose you want to solve the flow balance equation for a birth-death type queue with finite capacity $n$. Given an array of arrival (birth) rates $\lambda = (\lambda_{0}, \lambda_{1}, \cdots)$ and an array of service (death) rates $\mu = (\mu_{1}, \mu_{2}, \cdots)$, the function BD.solve($\lambda$, $\mu$) will return $\{p_n, n \geq 0\}$, the discrete distribution of number of customers in system. Please see the following example with $\lambda = (3, 2, 1)$ and $\mu = (1, 2, 2)$.
 
 ```{r BD.solve, echo=FALSE }
 BD.solve <- function(lambda, mu){
@@ -221,7 +221,7 @@ Where the first element corresponds to $p_0$, the second to $p_1$, and so on.
 ## M/M/c Markovian model
 
 <br />
-Next we consider an M/M/1 Markovian model. Given inputs arrival rate, service rate, and number of servers $c = 1$ the function mm1.summary() returns a data frame of performance measures for the queue and an array with $\{p_n, n \geq 0\}$, the discrete distribution of number of customers in system, for the first 25 entities. Additionally, by entering "plot_pn = TRUE", the function will plot this distribution. By entering "plot_waitSys = TRUE" the function will plot the probability density function of the waiting time in system and similarly "plot_waitQ = TRUE" will plot the probability density function of the waiting time in queue. The user can access performance measures by name using the $ operator. Please consider the following example. 
+Next we consider an M/M/1 Markovian model. Given inputs arrival rate, service rate, and number of servers $c = 1$ the function mm1.summary() returns a data frame of performance measures for the queue and an array with the discrete distribution of number of customers in system. Additionally, by entering "plot_pn = TRUE", the function will plot this distribution. For m/m/1 queues, by entering "plot_waitSys = TRUE" the function will plot the probability density function of the waiting time in system and similarly "plot_waitQ = TRUE" will plot the probability density function of the waiting time in queue. The user can access performance measures by name using the $ operator. Please consider the following example. 
 
 ```{r mm1summary, echo=FALSE }
 mmc.summary <- function(lambda, mu, c, 
@@ -374,7 +374,9 @@ qt %>%
       title = md("Measures of Performance for M/M/c Queues"))
 ```
 
+<br />
 
+You may have noticed that we did not plot the probability density functions for waiting times in queue or waiting times in system for the m/m/c queue. Instead we define two functions for m/m/c queues which return the cumulative probabilities $P\{T \geq t\}$ and $P\{T_q \geq t\}$. 
 
 
 
