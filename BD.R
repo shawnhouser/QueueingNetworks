@@ -1,4 +1,4 @@
-BD.transitions <- function(lambda, mu){
+BD.solve <- function(lambda, mu){
    if(length(lambda) != length(mu))
    {
       stop('Arrays must have equal length')
