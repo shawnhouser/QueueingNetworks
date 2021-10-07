@@ -1,6 +1,5 @@
-
 mmc.summary <- function(lambda, mu, c, 
-                        plot_transitions = FALSE,
+                        plot_pn = FALSE,
                         plot_waitSys = FALSE,
                         plot_waitQ = FALSE){
    if(c == 1){
@@ -13,23 +12,23 @@ mmc.summary <- function(lambda, mu, c,
       for(iter in 1:c){
          p_n[iter] = (rho^iter)*(1-rho)
       }
-      if(plot_transitions == TRUE){
+      if(plot_pn == TRUE){
          num_ent = c(0, 1:(c-1))
-         plot(num_ent, p_n, main="Transition Probabilities",
+         plot(num_ent, p_n, main="Distribution of Number of Customers in System",
               xlab="Number of customers in System",
               ylab="Probability", pch = 19, col = "blue")
       }
       t = seq(1, 12*rho, by = 1)
       waitSys_probabilities = (mu - lambda)*exp(-(mu - lambda)*t)
       if(plot_waitSys == TRUE){
-         plot(t, waitSys_probabilities, main="Waiting Time in System)",
+         plot(t, waitSys_probabilities, main="Waiting Time in System",
               xlab="Time Spent in System",
               ylab="Probability", pch = 19, col = "blue")
       }
       t = seq(1,12*rho, by = 1)
       waitQ_probabilities = c(1-rho, (mu*rho*(1-rho))*exp(-mu*(1 - rho)*t))
       if(plot_waitQ == TRUE){   
-         plot(c(0, t), waitQ_probabilities, main= "Waiting Time in Queue)",
+         plot(c(0, t), waitQ_probabilities, main= "Waiting Time in Queue",
               xlab="Time Spent in Queue",
               ylab="Probability", pch = 19, col = "blue")
       }
@@ -45,7 +44,7 @@ mmc.summary <- function(lambda, mu, c,
                       "Average time in queue", "Average number in system", "Average number in queue")
       res <- data.frame(cbind(rnames, round(rbind(lambda, rho, I, W, W_q, L, L_q), 4)))
       names(res)<- c("Definition", "Result")
-      return(list('transition_prob' = p_n, 'res' = res, 'lambda' = lambda,
+      return(list('pn' = p_n, 'res' = res, 'lambda' = lambda,
                   'rho' = rho, 'p0' = I, 'W' = W, 'W_q' = W_q, 'L' = L, 'L_q' = L_q,
                   'prob_T' = waitSys_probabilities, 'prob_T_q' = waitQ_probabilities))
    }
@@ -67,12 +66,12 @@ mmc.summary <- function(lambda, mu, c,
       for(n in 1:c){
          p_n = append(p_n, ((a^n)/factorial(n))*p0)
       }
-      for(n in (c+1):(20*c)){
+      for(n in (c+1):(10*c)){
          p_n = append(p_n, ((a^n)/(factorial(c)*c^(n-c)))*p0)
       }
-      if(plot_transitions == TRUE){
+      if(plot_pn == TRUE){
          num_ent = length(p_n)
-         plot(c(1:num_ent-1), p_n, main="Transition Probabilities",
+         plot(c(1:num_ent-1), p_n, main="Distribution of Number of Customers in System",
               xlab="Number of customers in System",
               ylab="Probability", pch = 19, col = "blue")
       }
@@ -88,7 +87,36 @@ mmc.summary <- function(lambda, mu, c,
                       "Average time in queue", "Average number in system", "Average number in queue")
       res <- data.frame(cbind(rnames, round(rbind(lambda, U, I, B, W, W_q, L, L_q), 4)))
       names(res)<- c("Definition", "Result")
-      return(list('transition_prob' = p_n, 'res' = res, 'lambda' = lambda,
+      return(list('pn' = p_n, 'res' = res, 'lambda' = lambda,
                   'rho' = rho, 'p0' = I, 'B' = B, 'W' = W, 'W_q' = W_q, 'L' = L, 'L_q' = L_q))
    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
