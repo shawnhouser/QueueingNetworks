@@ -1,9 +1,3 @@
-########
-# Bookkeeping for G/G/1 queues. The analysis is obtained under the assumption
-# of a single server with FCFS discipline. 
-########
-
-
 gg1.summary <- function(arrivals, service_times, interarrival = FALSE){
    if(length(arrivals) != length(service_times))
    {
@@ -32,9 +26,9 @@ gg1.summary <- function(arrivals, service_times, interarrival = FALSE){
                        departure_times = departure_times, queue_times = queue_times, 
                        system_times = system_times)
       
-      W_q <- mean(queue_times)
-      W <- mean(system_times)
-      lambda <- n/departure_times[n]
+      W_q <- mean(queue_times, na.rm = TRUE)
+      W <- mean(system_times, na.rm = TRUE)
+      lambda <- n/departure_times[n+1]
       L_q <- lambda*W_q
       L <- lambda*W
       rho <- L - L_q
@@ -44,7 +38,8 @@ gg1.summary <- function(arrivals, service_times, interarrival = FALSE){
                       "Average time in queue", "Average number in system", "Average number in queue")
       res <- data.frame(cbind(rnames, round(rbind(lambda, rho, p0, W, W_q, L, L_q), 4)))
       names(res)<- c("Definition", "Result")
-      return(list('bookkeeping' = df, 'res' = res))
+      return(list('bookkeeping' = df, 'res' = res, 'lambda' = lambda,
+                  'rho' = rho, 'p0' = p0, 'W' = W, 'W_q' = W_q, 'L' = L, 'L_q' = L_q))
       
    }
    else{
@@ -75,59 +70,7 @@ gg1.summary <- function(arrivals, service_times, interarrival = FALSE){
                       "Average time in queue", "Average number in system", "Average number in queue")
       res <- data.frame(cbind(rnames, round(rbind(lambda, rho, p0, W, W_q, L, L_q), 4)))
       names(res)<- c("Definition", "Result")
-      return(list('bookkeeping' = df, 'res' = res))
+      return(list('bookkeeping' = df, 'res' = res, 'lambda' = lambda,
+                  'rho' = rho, 'p0' = p0, 'W' = W, 'W_q' = W_q, 'L' = L, 'L_q' = L_q))
    }
-   
 }
-################################################################################
-# Tests
-################################################################################
-
-arrival <- c(0, 2, 3, 6, 7, 8, 12, 14, 19, 20, 24, 26)
-service <- c(1, 3, 6, 2, 1, 1, 1, 2, 5, 1, 1, 3)
-
-inter <- c(1, 9, 6, 4, 7, 9, 5, 8, 4, 10, 6, 12, 6, 8, 
-           9, 5, 7, 8, 8, 7)
-serv <- c(3, 7, 9, 9, 10, 4, 8, 5, 5, 3, 6, 3, 5, 4, 
-          9, 9, 8, 6, 8, 3)
-
-q <- gg1.summary(arrival, service)
-
-library(gt)
-pt <- q$df
-pt %>% gt()
-
-pt %>%
-   gt() %>%
-   tab_header(
-      title = md("Event-Oriented Bookkeeping for G/G/1 Queues"))
-
-qt <- q$res
-qt %>%
-   gt() %>%
-   tab_header(
-      title = md("Measures of Effectiveness for G/G/1 Queues"))
-
-res2 <- gg1.summary(inter, serv, interarrival = TRUE)
-pt <- q2$df
-pt %>%
-   gt() %>%
-   tab_header(
-      title = md("Event-Oriented Bookkeeping for G/G/1 Queues"))
-
-qt <- q2$res
-qt %>%
-   gt() %>%
-   tab_header(
-      title = md("Measures of Effectiveness for G/G/1 Queues"))
-
-gg1.plot <- function(arrivals, service_times, interarrival = FALSE){
-   time_bound <- 
-   interarrival_times <- c(diff(arrivals), NA)
-   Sn <- cumsum(interarrival_times)
-   
-}
-
-
-
-
