@@ -186,10 +186,10 @@ qt2 %>%
 
 ## The Birth Death Process
 
-Suppose you want to solve the flow balance equation for a birth-death type queue with finite capacity $n$. Given an array of arrival (birth) rates $\lambda = (\lambda_{0}, \lambda_{1}, \cdots)$ and an array of service (death) rates $\mu = (\mu_{1}, \mu_{2}, \cdots)$, the function BD.transitions($\lambda$, $\mu$) will return the transition probabilities for the system. Please see the following example with $\lambda = (3, 2, 1)$ and $\mu = (1, 2, 2)$.
+Suppose you want to solve the flow balance equation for a birth-death type queue with finite capacity $n$. Given an array of arrival (birth) rates $\lambda = (\lambda_{0}, \lambda_{1}, \cdots)$ and an array of service (death) rates $\mu = (\mu_{1}, \mu_{2}, \cdots)$, the function BD.solve($\lambda$, $\mu$) will return the distribution of number of customers in the system. Please see the following example with $\lambda = (3, 2, 1)$ and $\mu = (1, 2, 2)$.
 
-```{r BD.transitions, echo=FALSE }
-BD.transitions <- function(lambda, mu){
+```{r BD.solve, echo=FALSE }
+BD.solve <- function(lambda, mu){
    if(length(lambda) != length(mu))
    {
       stop('Arrays must have equal length')
@@ -213,7 +213,7 @@ BD.transitions <- function(lambda, mu){
 mu = c(1, 2, 2)
 lambda = c(3, 2, 1)
 
-pn = BD.transitions(lambda, mu)
+pn = BD.solve(lambda, mu)
 print(pn)
 ```
 Where the first element corresponds to $p_0$, the second to $p_1$, and so on. 
@@ -221,11 +221,11 @@ Where the first element corresponds to $p_0$, the second to $p_1$, and so on.
 ## M/M/c Markovian model
 
 <br />
-Next we consider an M/M/1 Markovian model. Given inputs arrival rate, service rate, and number of servers $c = 1$ the function mm1.summary() returns a data frame of performance measures for the queue and an array of transition probabilities for the first 25 entities. Additionally, by entering "plot_transitions = TRUE", the function will plot these transition probabilities. By entering "plot_waitSys = TRUE" the function will plot the probability density function of the waiting time in system and similarly "plot_waitQ = TRUE" will plot the probability density function of the waiting time in queue. The user can access performance measures by name using the $ operator. Please consider the following example. 
+Next we consider an M/M/1 Markovian model. Given inputs arrival rate, service rate, and number of servers $c = 1$ the function mm1.summary() returns a data frame of performance measures for the queue and an array with $\{p_n, n \geq 0\}$, the discrete distribution of number of customers in system, for the first 25 entities. Additionally, by entering "plot_pn = TRUE", the function will plot this distribution. By entering "plot_waitSys = TRUE" the function will plot the probability density function of the waiting time in system and similarly "plot_waitQ = TRUE" will plot the probability density function of the waiting time in queue. The user can access performance measures by name using the $ operator. Please consider the following example. 
 
 ```{r mm1summary, echo=FALSE }
 mmc.summary <- function(lambda, mu, c, 
-                        plot_transitions = FALSE,
+                        plot_pn = FALSE,
                         plot_waitSys = FALSE,
                         plot_waitQ = FALSE){
    if(c == 1){
@@ -234,27 +234,27 @@ mmc.summary <- function(lambda, mu, c,
       else{stop("System is unstable.")
       }
       c = 25*rho
-      p_n = integer(c)
+      pn = integer(c)
       for(iter in 1:c){
-         p_n[iter] = (rho^iter)*(1-rho)
+         pn[iter] = (rho^iter)*(1-rho)
       }
-      if(plot_transitions == TRUE){
+      if(plot_pn == TRUE){
          num_ent = c(0, 1:(c-1))
-         plot(num_ent, p_n, main="Transition Probabilities",
+         plot(num_ent, pn, main="Distribution of Number of Customers in System",
               xlab="Number of customers in System",
               ylab="Probability", pch = 19, col = "blue")
       }
       t = seq(1, 12*rho, by = 1)
       waitSys_probabilities = (mu - lambda)*exp(-(mu - lambda)*t)
       if(plot_waitSys == TRUE){
-         plot(t, waitSys_probabilities, main="Waiting Time in System)",
+         plot(t, waitSys_probabilities, main="Waiting Time in System",
               xlab="Time Spent in System",
               ylab="Probability", pch = 19, col = "blue")
       }
       t = seq(1,12*rho, by = 1)
       waitQ_probabilities = c(1-rho, (mu*rho*(1-rho))*exp(-mu*(1 - rho)*t))
       if(plot_waitQ == TRUE){   
-         plot(c(0, t), waitQ_probabilities, main= "Waiting Time in Queue)",
+         plot(c(0, t), waitQ_probabilities, main= "Waiting Time in Queue",
               xlab="Time Spent in Queue",
               ylab="Probability", pch = 19, col = "blue")
       }
@@ -262,7 +262,7 @@ mmc.summary <- function(lambda, mu, c,
       L_q = rho^2/(1-rho)
       W = 1/(mu - lambda)
       W_q = lambda/(mu*(mu - lambda))
-      U = 1 - p_n[1]
+      U = 1 - pn[1]
       I = 1 - rho
       
       rnames <- rbind("Average arrival rate", "Utilization", 
@@ -270,9 +270,9 @@ mmc.summary <- function(lambda, mu, c,
                       "Average time in queue", "Average number in system", "Average number in queue")
       res <- data.frame(cbind(rnames, round(rbind(lambda, rho, I, W, W_q, L, L_q), 4)))
       names(res)<- c("Definition", "Result")
-      return(list('transition_prob' = p_n, 'res' = res, 'lambda' = lambda,
+      return(list('pn' = pn, 'res' = res, 'lambda' = lambda,
                   'rho' = rho, 'p0' = I, 'W' = W, 'W_q' = W_q, 'L' = L, 'L_q' = L_q,
-                  'prob_T' = waitSys_probabilities, 'prob_T_q' = waitQ_probabilities))
+                  'prob_T' = waitSys_probabilities, 'prob_Tq' = waitQ_probabilities))
    }
    else{
       rho = lambda/(c*mu)
@@ -288,16 +288,16 @@ mmc.summary <- function(lambda, mu, c,
       r = (a^c)/(factorial(c)*(1-rho))
       p0 = 1/(l + r)
       # find pn
-      p_n = c(p0)
+      pn = c(p0)
       for(n in 1:c){
-         p_n = append(p_n, ((a^n)/factorial(n))*p0)
+         pn = append(pn, ((a^n)/factorial(n))*p0)
       }
-      for(n in (c+1):(20*c)){
-         p_n = append(p_n, ((a^n)/(factorial(c)*c^(n-c)))*p0)
+      for(n in (c+1):(10*c)){
+         pn = append(pn, ((a^n)/(factorial(c)*c^(n-c)))*p0)
       }
-      if(plot_transitions == TRUE){
-         num_ent = length(p_n)
-         plot(c(1:num_ent-1), p_n, main="Transition Probabilities",
+      if(plot_pn == TRUE){
+         num_ent = length(pn)
+         plot(c(1:num_ent-1), pn, main="Distribution of Number of Customers in System",
               xlab="Number of customers in System",
               ylab="Probability", pch = 19, col = "blue")
       }
@@ -313,14 +313,14 @@ mmc.summary <- function(lambda, mu, c,
                       "Average time in queue", "Average number in system", "Average number in queue")
       res <- data.frame(cbind(rnames, round(rbind(lambda, U, I, B, W, W_q, L, L_q), 4)))
       names(res)<- c("Definition", "Result")
-      return(list('transition_prob' = p_n, 'res' = res, 'lambda' = lambda,
+      return(list('pn' = pn, 'res' = res, 'lambda' = lambda,
                   'rho' = rho, 'p0' = I, 'B' = B, 'W' = W, 'W_q' = W_q, 'L' = L, 'L_q' = L_q))
    }
 }
 ```
 
 ```{r ex3}
-q <- mmc.summary(lambda = 4, mu = 4.4545, c = 1, plot_transitions = TRUE,
+q <- mmc.summary(lambda = 4, mu = 4.4545, c = 1, plot_pn = TRUE,
                  plot_waitQ = TRUE,
                  plot_waitSys = TRUE)
 
@@ -364,7 +364,7 @@ print(pr2)
 Moving on, we consider Markovian queueing models with parallel channels: M/M/c/$\infty$/$\infty$ queues. 
 
 ```{r ex7}
-q <- mmc.summary(lambda = 4, mu = 2, c = 3, plot_transitions = TRUE)
+q <- mmc.summary(lambda = 4, mu = 2, c = 3, plot_pn = TRUE)
 
 library(gt)
 qt <- q$res
