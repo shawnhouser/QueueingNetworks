@@ -16,6 +16,8 @@ header-includes:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+<!-- https://htmlpreview.github.io/?https://github.com/angyalkavalcsics/QueueingNetworks/blob/main/QueueingNetworks.html -->
+
 ## Introduction
 
 Queueing theory is the mathematical study of the formation and function of queues.  A basic queueing system is a system where entities arrive at a facility requiring some service, they join a line, and wait for service from one or more servers. The results of queueing analysis can be used to offer faster customer service, increase traffic flow, improve order shipments from a warehouse, or to design data networks and call centers. In this first demonstration, we will use the random events of arrivals and service completions from a general distribution to demonstrate the development of a queue over time. We assume the reader has some previous knowledge of queueing networks. 
@@ -25,7 +27,7 @@ Queueing theory is the mathematical study of the formation and function of queue
 Variable | Definition
 ------------- | -------------
 $\lambda$  | Average arrival rate
-$S$  | Random service rate
+$S$  | Random service time
 $\mu$  | Average service rate
 $c$  | Number of servers
 $r = \lambda / \mu$  | Offered load
@@ -53,7 +55,7 @@ The analysis is obtained under the assumption of a single server with FCFS disci
 
 The gg1.summary() function takes three inputs. First an input of either the arrival times or the interarrival times, the service times, and a Boolean--set interarrival = TRUE if the first input is interarrival times. The function outputs a data frame with the bookkeeping values for each entity and a data frame which holds some performance measures.The user can access performance measures by name using the $ operator. Please see the examples that follow.
 
-```{r gg1summayy, echo=FALSE }
+```{r gg1summary, echo=FALSE }
 gg1.summary <- function(arrivals, service_times, interarrival = FALSE){
    if(length(arrivals) != length(service_times))
    {
@@ -95,7 +97,7 @@ gg1.summary <- function(arrivals, service_times, interarrival = FALSE){
       res <- data.frame(cbind(rnames, round(rbind(lambda, rho, p0, W, W_q, L, L_q), 4)))
       names(res)<- c("Definition", "Result")
       return(list('bookkeeping' = df, 'res' = res, 'lambda' = lambda,
-             'rho' = rho, 'p0' = p0, 'W' = W, 'W_q' = W_q, 'L' = L, 'L_q' = L_q))
+                  'rho' = rho, 'p0' = p0, 'W' = W, 'W_q' = W_q, 'L' = L, 'L_q' = L_q))
       
    }
    else{
@@ -127,9 +129,8 @@ gg1.summary <- function(arrivals, service_times, interarrival = FALSE){
       res <- data.frame(cbind(rnames, round(rbind(lambda, rho, p0, W, W_q, L, L_q), 4)))
       names(res)<- c("Definition", "Result")
       return(list('bookkeeping' = df, 'res' = res, 'lambda' = lambda,
-             'rho' = rho, 'p0' = p0, 'W' = W, 'W_q' = W_q, 'L' = L, 'L_q' = L_q))
+                  'rho' = rho, 'p0' = p0, 'W' = W, 'W_q' = W_q, 'L' = L, 'L_q' = L_q))
    }
-   
 }
 ```
 
@@ -183,12 +184,46 @@ qt2 %>%
 
 ```
 
+## The Birth Death Process
+
+Suppose you want to solve the flow balance equation for a birth-death type queue with finite capacity $n$. Given an array of arrival (birth) rates $\lambda = (\lambda_{0}, \lambda_{1}, \cdots)$ and an array of service (death) rates $\mu = (\mu_{1}, \mu_{2}, \cdots)$, the function BD.transitions($\lambda$, $\mu$) will return the transition probabilities for the system. Please see the following example with $\lambda = (3, 2, 1)$ and $\mu = (1, 2, 2)$.
+
+```{r BD.transitions, echo=FALSE }
+BD.transitions <- function(lambda, mu){
+   if(length(lambda) != length(mu))
+   {
+      stop('Arrays must have equal length')
+   }
+   temp = lambda/mu
+   k = length(lambda)
+   s = 0
+   for(j in 1:k){
+      s = s + prod(temp[1:j])
+   }
+   p0 = 1/(1+s)
+   pn = c(p0)
+   for(j in 1:k){
+      pn <- append(pn, temp[j]*pn[j])
+   }
+   return(pn)
+}
+```
+
+```{r ex8}
+mu = c(1, 2, 2)
+lambda = c(3, 2, 1)
+
+pn = BD.transitions(lambda, mu)
+print(pn)
+```
+Where the first element corresponds to $p_0$, the second to $p_1$, and so on. 
+
 ## M/M/c Markovian model
 
 <br />
 Next we consider an M/M/1 Markovian model. Given inputs arrival rate, service rate, and number of servers $c = 1$ the function mm1.summary() returns a data frame of performance measures for the queue and an array of transition probabilities for the first 25 entities. Additionally, by entering "plot_transitions = TRUE", the function will plot these transition probabilities. By entering "plot_waitSys = TRUE" the function will plot the probability density function of the waiting time in system and similarly "plot_waitQ = TRUE" will plot the probability density function of the waiting time in queue. The user can access performance measures by name using the $ operator. Please consider the following example. 
 
-```{r mm1summayy, echo=FALSE }
+```{r mm1summary, echo=FALSE }
 mmc.summary <- function(lambda, mu, c, 
                         plot_transitions = FALSE,
                         plot_waitSys = FALSE,
@@ -198,11 +233,10 @@ mmc.summary <- function(lambda, mu, c,
       if(rho < 1) print("System is stable.")
       else{stop("System is unstable.")
       }
-      c = 50*rho
+      c = 25*rho
       p_n = integer(c)
       for(iter in 1:c){
          p_n[iter] = (rho^iter)*(1-rho)
-         iter = iter + 1
       }
       if(plot_transitions == TRUE){
          num_ent = c(0, 1:(c-1))
@@ -213,14 +247,14 @@ mmc.summary <- function(lambda, mu, c,
       t = seq(1, 12*rho, by = 1)
       waitSys_probabilities = (mu - lambda)*exp(-(mu - lambda)*t)
       if(plot_waitSys == TRUE){
-         plot(t, waitSys_probabilities, main="pdf of T (waiting time in system)",
+         plot(t, waitSys_probabilities, main="Waiting Time in System)",
               xlab="Time Spent in System",
               ylab="Probability", pch = 19, col = "blue")
       }
       t = seq(1,12*rho, by = 1)
       waitQ_probabilities = c(1-rho, (mu*rho*(1-rho))*exp(-mu*(1 - rho)*t))
       if(plot_waitQ == TRUE){   
-         plot(c(0, t), waitQ_probabilities, main= "pdf of T_q (waiting time in queue)",
+         plot(c(0, t), waitQ_probabilities, main= "Waiting Time in Queue)",
               xlab="Time Spent in Queue",
               ylab="Probability", pch = 19, col = "blue")
       }
@@ -241,11 +275,48 @@ mmc.summary <- function(lambda, mu, c,
                   'prob_T' = waitSys_probabilities, 'prob_T_q' = waitQ_probabilities))
    }
    else{
-      print("c = ?")
+      rho = lambda/(c*mu)
+      if(rho < 1) print("System is stable.")
+      else{stop("System is unstable.")}
+      # a := offered load
+      a = lambda/mu
+      # find p0
+      l = 0
+      for(n in 0:(c-1)){
+         l <- l + (a^n)/(factorial(n))
+      }
+      r = (a^c)/(factorial(c)*(1-rho))
+      p0 = 1/(l + r)
+      # find pn
+      p_n = c(p0)
+      for(n in 1:c){
+         p_n = append(p_n, ((a^n)/factorial(n))*p0)
+      }
+      for(n in (c+1):(20*c)){
+         p_n = append(p_n, ((a^n)/(factorial(c)*c^(n-c)))*p0)
+      }
+      if(plot_transitions == TRUE){
+         num_ent = length(p_n)
+         plot(c(1:num_ent-1), p_n, main="Transition Probabilities",
+              xlab="Number of customers in System",
+              ylab="Probability", pch = 19, col = "blue")
+      }
+      L_q = ((a^c)*rho/(factorial(c)*(1-rho)^2))*p0
+      W_q = ((a^c)/(factorial(c)*(c*mu)*(1-rho)^2))*p0
+      W = W_q + (1/mu)
+      L = L_q + (lambda/mu)
+      U = rho
+      B = a
+      I = p0
+      rnames <- rbind("Average arrival rate", "Utilization", 
+                      "Idle time", "Mean number busy servers", "Average time in system",
+                      "Average time in queue", "Average number in system", "Average number in queue")
+      res <- data.frame(cbind(rnames, round(rbind(lambda, U, I, B, W, W_q, L, L_q), 4)))
+      names(res)<- c("Definition", "Result")
+      return(list('transition_prob' = p_n, 'res' = res, 'lambda' = lambda,
+                  'rho' = rho, 'p0' = I, 'B' = B, 'W' = W, 'W_q' = W_q, 'L' = L, 'L_q' = L_q))
    }
-   return(1)
 }
-
 ```
 
 ```{r ex3}
@@ -290,4 +361,23 @@ print(pr2)
 
 <br />
 
-Moving on, we have M/M/c/$\infty$/$\infty$ queues. 
+Moving on, we consider Markovian queueing models with parallel channels: M/M/c/$\infty$/$\infty$ queues. 
+
+```{r ex7}
+q <- mmc.summary(lambda = 4, mu = 2, c = 3, plot_transitions = TRUE)
+
+library(gt)
+qt <- q$res
+qt %>%
+   gt() %>%
+   tab_header(
+      title = md("Measures of Performance for M/M/c Queues"))
+```
+
+
+
+
+
+
+
+
