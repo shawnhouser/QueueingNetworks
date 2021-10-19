@@ -24,6 +24,7 @@ mmc.summary <- function(lambda, mu, c,
          plot(t, waitSys_probabilities, main="Waiting Time in System",
               xlab="Time Spent in System",
               ylab="Probability", pch = 19, col = "blue")
+         lines(t, waitSys_probabilities, type = "b", col = "blue")
       }
       t = seq(1,12*rho, by = 1)
       waitQ_probabilities = c(1-rho, (mu*rho*(1-rho))*exp(-mu*(1 - rho)*t))
@@ -31,6 +32,7 @@ mmc.summary <- function(lambda, mu, c,
          plot(c(0, t), waitQ_probabilities, main= "Waiting Time in Queue",
               xlab="Time Spent in Queue",
               ylab="Probability", pch = 19, col = "blue")
+         lines(t, (mu*rho*(1-rho))*exp(-mu*(1 - rho)*t), type = "b", col = "blue")
       }
       L = rho/(1-rho)
       L_q = rho^2/(1-rho)
@@ -39,9 +41,9 @@ mmc.summary <- function(lambda, mu, c,
       U = 1 - p_n[1]
       I = 1 - rho
       
-      rnames <- rbind("Average arrival rate", "Utilization", 
-                      "Idle time", "Average time in system",
-                      "Average time in queue", "Average number in system", "Average number in queue")
+      rnames <- rbind("Mean arrival rate", "Utilization", 
+                      "Idle time", "Mean time in system",
+                      "Mean time in queue", "Mean number in system", "Mean number in queue")
       res <- data.frame(cbind(rnames, round(rbind(lambda, rho, I, W, W_q, L, L_q), 4)))
       names(res)<- c("Definition", "Result")
       return(list('pn' = p_n, 'res' = res, 'lambda' = lambda,
@@ -82,41 +84,12 @@ mmc.summary <- function(lambda, mu, c,
       U = rho
       B = a
       I = p0
-      rnames <- rbind("Average arrival rate", "Utilization", 
-                      "Idle time", "Mean number busy servers", "Average time in system",
-                      "Average time in queue", "Average number in system", "Average number in queue")
+      rnames <- rbind("Mean arrival rate", "Utilization", 
+                      "Idle time", "Mean number busy servers", "Mean time in system",
+                      "Mean time in queue", "Mean number in system", "Mean number in queue")
       res <- data.frame(cbind(rnames, round(rbind(lambda, U, I, B, W, W_q, L, L_q), 4)))
       names(res)<- c("Definition", "Result")
       return(list('pn' = p_n, 'res' = res, 'lambda' = lambda,
                   'rho' = rho, 'p0' = I, 'B' = B, 'W' = W, 'W_q' = W_q, 'L' = L, 'L_q' = L_q))
    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
