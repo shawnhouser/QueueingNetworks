@@ -405,7 +405,7 @@ v = solve.routing(R)
 print(v)
 ```
 
-Now, let's get the performance measures for each node in this network using the function cjn.summary(v, N, K, convolution = TRUE). This stands for 'Closed Jackson Network Summary'. The necessary inputs are v, the solution to $VR = v$ such that $\sum v_i = 1$, the given service rates, N the number of customers in the system, K the number of nodes in the network, and a boolean convolution. When convolution is set to true, the function uses Buzen's algorithm to solve for the summary statistics. Otherwise the function will use Mean Value Analysis. Using the same routing matrix as before let's see an example, first with convolution. 
+Now, let's get the performance measures for each node in this network using the function cjn.summary(v, N, K, convolution = TRUE). This stands for 'Closed Jackson Network Summary'. The necessary inputs are v, the solution to $vR = v$ such that $\sum v_i = 1$, the given service rates, N the number of customers in the system, K the number of nodes in the network, and a boolean convolution. When convolution is set to true, the function uses Buzen's algorithm to solve for the summary statistics. Otherwise the function will use Mean Value Analysis. Using the same routing matrix as before let's see an example, first with convolution. 
 
 ```{r cjn, echo=FALSE}
 # v := solution to vR = v
