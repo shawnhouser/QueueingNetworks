@@ -41,12 +41,12 @@ mmc.summary <- function(lambda, mu, c,
       U = 1 - p_n[1]
       I = 1 - rho
       
-      rnames <- rbind("Mean arrival rate", "Utilization", 
+      rnames <- rbind("Utilization", 
                       "Idle time", "Mean time in system",
                       "Mean time in queue", "Mean number in system", "Mean number in queue")
-      res <- data.frame(cbind(rnames, round(rbind(lambda, rho, I, W, W_q, L, L_q), 4)))
+      res <- data.frame(cbind(rnames, round(rbind(rho, I, W, W_q, L, L_q), 4)))
       names(res)<- c("Definition", "Result")
-      return(list('pn' = p_n, 'res' = res, 'lambda' = lambda,
+      return(list('pn' = p_n, 'res' = res, 
                   'rho' = rho, 'p0' = I, 'W' = W, 'W_q' = W_q, 'L' = L, 'L_q' = L_q,
                   'prob_T' = waitSys_probabilities, 'prob_T_q' = waitQ_probabilities))
    }
@@ -84,12 +84,14 @@ mmc.summary <- function(lambda, mu, c,
       U = rho
       B = a
       I = p0
-      rnames <- rbind("Mean arrival rate", "Utilization", 
+      delayed = ((a^c)*p0)/(factorial(c)*(1-rho))
+      rnames <- rbind("Utilization", 
                       "Idle time", "Mean number busy servers", "Mean time in system",
-                      "Mean time in queue", "Mean number in system", "Mean number in queue")
-      res <- data.frame(cbind(rnames, round(rbind(lambda, U, I, B, W, W_q, L, L_q), 4)))
+                      "Mean time in queue", "Mean number in system", "Mean number in queue",
+                      "Probability arriving entity waits in queue")
+      res <- data.frame(cbind(rnames, round(rbind(U, I, B, W, W_q, L, L_q, delayed), 4)))
       names(res)<- c("Definition", "Result")
-      return(list('pn' = p_n, 'res' = res, 'lambda' = lambda,
-                  'rho' = rho, 'p0' = I, 'B' = B, 'W' = W, 'W_q' = W_q, 'L' = L, 'L_q' = L_q))
+      return(list('pn' = p_n, 'res' = res,
+                  'rho' = rho, 'p0' = I, 'r' = B, 'W' = W, 'W_q' = W_q, 'L' = L, 'L_q' = L_q))
    }
 }
