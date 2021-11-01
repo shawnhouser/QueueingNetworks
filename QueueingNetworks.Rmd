@@ -210,8 +210,8 @@ BD.solve <- function(lambda, mu){
 ```
 
 ```{r ex8}
-mu = c(1, 2, 2)
-lambda = c(3, 2, 1)
+mu <- c(1, 2, 2)
+lambda <- c(3, 2, 1)
 
 pn = BD.solve(lambda, mu)
 print(pn)
@@ -267,12 +267,12 @@ mmc.summary <- function(lambda, mu, c,
       U = 1 - p_n[1]
       I = 1 - rho
       
-      rnames <- rbind("Mean arrival rate", "Utilization", 
+      rnames <- rbind("Utilization", 
                       "Idle time", "Mean time in system",
                       "Mean time in queue", "Mean number in system", "Mean number in queue")
-      res <- data.frame(cbind(rnames, round(rbind(lambda, rho, I, W, W_q, L, L_q), 4)))
+      res <- data.frame(cbind(rnames, round(rbind(rho, I, W, W_q, L, L_q), 4)))
       names(res)<- c("Definition", "Result")
-      return(list('pn' = p_n, 'res' = res, 'lambda' = lambda,
+      return(list('pn' = p_n, 'res' = res, 
                   'rho' = rho, 'p0' = I, 'W' = W, 'W_q' = W_q, 'L' = L, 'L_q' = L_q,
                   'prob_T' = waitSys_probabilities, 'prob_T_q' = waitQ_probabilities))
    }
@@ -310,13 +310,15 @@ mmc.summary <- function(lambda, mu, c,
       U = rho
       B = a
       I = p0
-      rnames <- rbind("Mean arrival rate", "Utilization", 
+      delayed = ((a^c)*p0)/(factorial(c)*(1-rho))
+      rnames <- rbind("Utilization", 
                       "Idle time", "Mean number busy servers", "Mean time in system",
-                      "Mean time in queue", "Mean number in system", "Mean number in queue")
-      res <- data.frame(cbind(rnames, round(rbind(lambda, U, I, B, W, W_q, L, L_q), 4)))
+                      "Mean time in queue", "Mean number in system", "Mean number in queue",
+                      "Probability arriving entity waits in queue")
+      res <- data.frame(cbind(rnames, round(rbind(U, I, B, W, W_q, L, L_q, delayed), 4)))
       names(res)<- c("Definition", "Result")
-      return(list('pn' = p_n, 'res' = res, 'lambda' = lambda,
-                  'rho' = rho, 'p0' = I, 'B' = B, 'W' = W, 'W_q' = W_q, 'L' = L, 'L_q' = L_q))
+      return(list('pn' = p_n, 'res' = res,
+                  'rho' = rho, 'p0' = I, 'r' = B, 'W' = W, 'W_q' = W_q, 'L' = L, 'L_q' = L_q))
    }
 }
 ```
@@ -347,7 +349,7 @@ print(prob_k_system)
 Recall that we can also find the following two probabilities. 
 $$P(T > t) = e^{-\mu (1-\rho)t}$$
 ```{r ex5}
-mu = 4.4545
+mu <- 4.4545
 t <- 2
 pr <- exp(-mu*(1 - q$rho)*t)
 print(pr)
@@ -355,7 +357,7 @@ print(pr)
 
 $$P(T_q > t) = \rho e^{-\mu (1-\rho)t}$$
 ```{r ex6}
-mu = 4.4545
+mu <- 4.4545
 t <- 2
 pr2 <- (q$rho)*exp(-mu*(1 - q$rho)*t)
 print(pr2)
@@ -366,7 +368,7 @@ print(pr2)
 Moving on, we consider Markovian queueing models with parallel channels: M/M/c/$\infty$/$\infty$ queues. 
 
 ```{r ex7}
-q <- mmc.summary(lambda = 4, mu = 2, c = 3, plot_pn = TRUE)
+q <- mmc.summary(lambda = 4, mu = 4.4545, c = 2, plot_pn = TRUE)
 
 library(gt)
 qt <- q$res
@@ -378,7 +380,26 @@ qt %>%
 
 <br />
 
-You may have noticed that we did not plot the probability density functions for waiting times in queue or waiting times in system for the m/m/c queue. Instead we define two functions for m/m/c queues which return the cumulative probabilities $P\{T \geq t\}$ and $P\{T_q \geq t\}$. 
+You may have noticed that we did not plot the probability density functions for waiting times in queue or waiting times in system for the m/m/c queue. Instead we will just demonstrate how to find the cumulative probability $P\{T_q \leq t\}$. 
+
+$$P(T_q \leq t) = 1 - \dfrac{r^{c}p_{0}}{c!(1-\rho)} e^{-(c \mu - \lambda)t}$$
+Where $r = \lambda / \mu$ and $\rho = \lambda / (c\mu)$. Then 
+```{r ex9}
+# given 
+lambda <- 4
+mu <- 4.4545
+c <- 2
+t <- 0.05
+
+# performance results
+rho <- q$rho
+p0 <- q$p0
+r <- q$r
+
+pr <- 1 - ((r^c * p0)/(factorial(c)*(1 - rho)))*exp(-(c*mu - lambda)*t)
+print(pr)
+```
+
 
 ## Closed Jackson Networks
 
