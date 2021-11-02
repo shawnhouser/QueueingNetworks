@@ -400,10 +400,64 @@ pr <- 1 - ((r^c * p0)/(factorial(c)*(1 - rho)))*exp(-(c*mu - lambda)*t)
 print(pr)
 ```
 
+## Open Single-Server Jackson Networks
 
-## Closed Jackson Networks
+Suppose we have an open Jackson network where entities may arrive from the outside at any node according to a Poisson process and entities are serviced according to an exponential distribution. There is no limit on queue capacity at any node and there is a probability, possibly nonzero, that an entity will leave the network at some node $i$ upon completion of service. We can use the function ojn.summary(R, gamma, mu) to find performance measures for this system. This stands for 'Open Jackson Network Summary'. This function takes as inputs the routing matrix R, the mean arrival rate to each node gamma, and the mean service rate of each node mu. Please keep in mind that in order to avoid rounding error, it is necessary to keep the probabilities in the routing matrix as fractions if they are non-terminating, recurring decimal numbers. 
+```{r ojn.summary, echo=FALSE}
+ojn.summary <- function(R, gamma, mu){
+   n = nrow(R)
+   m = ncol(R)
+   K = length(mu)
+   I = diag(x = 1, nrow = n, ncol = m)
+   Q = I - R
+   lambda_i = gamma%*%(solve(Q))
+   rho_i = lambda_i / mu
+   I_i = 1-rho_i
+   Lq_i = (rho_i)^2 / I_i
+   L_i = (rho_i)/ I_i
+   W_i = L_i / lambda_i
+   Wq_i = Lq_i / lambda_i
+   L = sum(L_i)
+   W = L/(sum(gamma))
+   # are the marginals just rho_i ^ n?
+   rnames <- rbind("Node i throughput", "Utilization at node i", 
+                   "Probability node i is idle", "Mean time at node i","Mean number at node i",
+                   "Mean queue time at node i", "Mean number in queue at node i")
+   res <- data.frame(cbind(rnames, round(rbind(lambda_i, rho_i, I_i, W_i, L_i, Wq_i, Lq_i), 4)))
+   names(res)<- c("Definition", sprintf("node%2d",seq(1:K)))
+   # 'marginal_probabilities' = p, 
+   return(list('res' = res,
+               'throughput_i' = lambda_i, 'rho_i' = rho_i, 'idle' = I_i, 
+               'W_i' = W_i, 'L_i' = L_i, 'Wq_i' = Wq_i, 'Lq_i' = Lq_i,
+               'W' = W, 'L' = L))
+}
+```
 
-Suppose we have the following routing matrix and we need to solve $vR = v$ such that $\sum v_i = 1$. We can use the function solve.routing() to accomplish this. The only input necessary is the routing matrix. 
+```{r ex1 ojn}
+R = matrix(c(1/3, 1/4, 0.000, 1/4, 0.000, 1/6, 0.000,
+             1/3, 1/4, 0.000, 1/3, 0.000, 0.000, 0.000,
+             0.000, 0.000, 1/3, 1/3, 1/3, 0.000, 0.000,
+             1/3, 0.000, 1/3, 0.000, 1/3, 0.000, 0.000,
+             0.000, 0.000, 0.000, 4/5, 0.000, 0.000, 1/6,
+             1/6, 0.000, 1/6, 1/6, 1/6, 1/6, 0.000,
+             0.000, 1/6, 1/6, 1/6, 1/6, 0.000, 1/6), 
+           nrow = 7, ncol = 7, byrow = TRUE)
+gamma = c(0, 5, 0, 5, 0, 0, 0)
+mu = c(85, 85, 120, 120, 70, 20, 20)
+
+q <- ojn.summary(R, gamma, mu)
+
+qt <- q$res
+qt %>%
+   gt() %>%
+   tab_header(
+      title = md("Measures of Performance for Open Jackson Networks"))
+
+```
+
+## Closed Single-Server Jackson Networks
+
+In a closed Jackson network, there is no input rate from the outside world. Essentially, this is equivalent to a system where $N$ entities continuously travel inside the network. Suppose we have the following routing matrix and we need to solve $vR = v$ such that $\sum v_i = 1$. We can use the function solve.routing() to accomplish this. The only input necessary is the routing matrix. 
 ```{r solve routing matrix, echo=FALSE}
 # find v given the routing matrix R
 solve.routing <- function(R){
