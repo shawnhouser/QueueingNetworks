@@ -1,4 +1,4 @@
-mmc.summary <- function(lambda, mu, c, 
+mmc.summary <- function(lambda, mu, c, tol, 
                         plot_pn = FALSE,
                         plot_waitSys = FALSE,
                         plot_waitQ = FALSE){
@@ -7,13 +7,16 @@ mmc.summary <- function(lambda, mu, c,
       if(rho < 1) print("System is stable.")
       else{stop("System is unstable.")
       }
-      c = 25*rho
-      p_n = integer(c)
-      for(iter in 1:c){
-         p_n[iter] = (rho^iter)*(1-rho)
+   
+      p_n = c()
+      iter = 0
+      while(sum(p_n) < (1-tol)){
+         p_n = append(p_n, (rho^iter)*(1-rho))
+         iter = iter + 1
       }
       if(plot_pn == TRUE){
-         num_ent = c(0, 1:(c-1))
+         
+         num_ent = c(0, 1:(length(p_n)-1))
          plot(num_ent, p_n, main="Distribution of Number of Customers in System",
               xlab="Number of customers in System",
               ylab="Probability", pch = 19, col = "blue")
@@ -68,9 +71,16 @@ mmc.summary <- function(lambda, mu, c,
       for(n in 1:c){
          p_n = append(p_n, ((a^n)/factorial(n))*p0)
       }
-      for(n in (c+1):(10*c)){
-         p_n = append(p_n, ((a^n)/(factorial(c)*c^(n-c)))*p0)
+      #for(n in (c+1):(10*c)){
+      #   p_n = append(p_n, ((a^n)/(factorial(c)*c^(n-c)))*p0)
+      #}
+      
+      iter = c+1
+      while(sum(p_n) < (1-tol)){
+         p_n = append(p_n, ((a^iter)/(factorial(c)*c^(iter-c)))*p0)
+         iter = iter + 1
       }
+      
       if(plot_pn == TRUE){
          num_ent = length(p_n)
          plot(c(1:num_ent-1), p_n, main="Distribution of Number of Customers in System",
