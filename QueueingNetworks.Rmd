@@ -221,10 +221,10 @@ Where the first element corresponds to $p_0$, the second to $p_1$, and so on.
 ## M/M/c Markovian model
 
 <br />
-Next we consider an M/M/1 Markovian model. Given inputs arrival rate, service rate, and number of servers $c = 1$ the function mm1.summary() returns a data frame of performance measures for the queue and an array with the discrete distribution of number of customers in system. Additionally, by entering "plot_pn = TRUE", the function will plot this distribution. For m/m/1 queues, by entering "plot_waitSys = TRUE" the function will plot the probability density function of the waiting time in system and similarly "plot_waitQ = TRUE" will plot the probability density function of the waiting time in queue. The user can access performance measures by name using the $ operator. Please consider the following example. 
+Next we consider an M/M/1 Markovian model. Given inputs arrival rate, service rate, and number of servers $c = 1$ the function mm1.summary() returns a data frame of performance measures for the queue and an array with the discrete distribution of number of customers in system. Additionally, by entering "plot_pn = TRUE", the function will plot this distribution. For m/m/1 queues, by entering "plot_waitSys = TRUE" the function will plot the probability density function of the waiting time in system and similarly "plot_waitQ = TRUE" will plot the probability density function of the waiting time in queue. The variable tol is the stopping criteria for finding the probability distribution of customers in the system. That is, the function stops finding additional probabilities when $\sum p_n < 1 - tol$. The user can access performance measures by name using the $ operator. Please consider the following example. 
 
 ```{r mm1summary, echo=FALSE }
-mmc.summary <- function(lambda, mu, c, 
+mmc.summary <- function(lambda, mu, c, tol, 
                         plot_pn = FALSE,
                         plot_waitSys = FALSE,
                         plot_waitQ = FALSE){
@@ -233,13 +233,16 @@ mmc.summary <- function(lambda, mu, c,
       if(rho < 1) print("System is stable.")
       else{stop("System is unstable.")
       }
-      c = 25*rho
-      p_n = integer(c)
-      for(iter in 1:c){
-         p_n[iter] = (rho^iter)*(1-rho)
+   
+      p_n = c()
+      iter = 0
+      while(sum(p_n) < (1-tol)){
+         p_n = append(p_n, (rho^iter)*(1-rho))
+         iter = iter + 1
       }
       if(plot_pn == TRUE){
-         num_ent = c(0, 1:(c-1))
+         
+         num_ent = c(0, 1:(length(p_n)-1))
          plot(num_ent, p_n, main="Distribution of Number of Customers in System",
               xlab="Number of customers in System",
               ylab="Probability", pch = 19, col = "blue")
@@ -294,9 +297,16 @@ mmc.summary <- function(lambda, mu, c,
       for(n in 1:c){
          p_n = append(p_n, ((a^n)/factorial(n))*p0)
       }
-      for(n in (c+1):(10*c)){
-         p_n = append(p_n, ((a^n)/(factorial(c)*c^(n-c)))*p0)
+      #for(n in (c+1):(10*c)){
+      #   p_n = append(p_n, ((a^n)/(factorial(c)*c^(n-c)))*p0)
+      #}
+      
+      iter = c+1
+      while(sum(p_n) < (1-tol)){
+         p_n = append(p_n, ((a^iter)/(factorial(c)*c^(iter-c)))*p0)
+         iter = iter + 1
       }
+      
       if(plot_pn == TRUE){
          num_ent = length(p_n)
          plot(c(1:num_ent-1), p_n, main="Distribution of Number of Customers in System",
@@ -324,7 +334,9 @@ mmc.summary <- function(lambda, mu, c,
 ```
 
 ```{r ex3}
-q <- mmc.summary(lambda = 4, mu = 4.4545, c = 1, plot_pn = TRUE,
+q <- mmc.summary(lambda = 4, mu = 4.4545, c = 1, 
+                 tol = 0.01,
+                 plot_pn = TRUE,
                  plot_waitQ = TRUE,
                  plot_waitSys = TRUE)
 
@@ -368,7 +380,7 @@ print(pr2)
 Moving on, we consider Markovian queueing models with parallel channels: M/M/c/$\infty$/$\infty$ queues. 
 
 ```{r ex7}
-q <- mmc.summary(lambda = 4, mu = 4.4545, c = 2, plot_pn = TRUE)
+q <- mmc.summary(lambda = 4, mu = 4.4545, c = 2, tol = 0.01, plot_pn = TRUE)
 
 library(gt)
 qt <- q$res
