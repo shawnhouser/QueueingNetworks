@@ -8,6 +8,7 @@ mmc.summary(
   lambda,
   mu,
   c,
+  tol,
   plot_pn = FALSE,
   plot_waitSys = FALSE,
   plot_waitQ = FALSE

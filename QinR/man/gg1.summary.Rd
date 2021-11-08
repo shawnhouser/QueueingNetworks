@@ -7,9 +7,9 @@
 gg1.summary(arrivals, service_times, interarrival = FALSE)
 }
 \arguments{
-\item{arrivals}{Arrival time of customer}
+\item{arrivals}{Array of arrival times of customer.}
 
-\item{service_times}{Service time of customer}
+\item{service_times}{Array of service times of customer.}
 
 \item{interarrival}{Boolean set to true, if arrival time is an interarrival time.}
 }
@@ -30,7 +30,5 @@ serv <- c(3, 7, 9, 9, 10, 4, 8, 5, 5, 3, 6, 3, 5, 4,
          9, 9, 8, 6, 8, 3)
 res <- gg1.summary(arrival, service)
 res2 <- gg1.summary(inter, serv, interarrival = TRUE)
-
-
 
 }

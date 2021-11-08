@@ -7,21 +7,23 @@
 BD.solve(lambda, mu)
 }
 \arguments{
-\item{lambda}{Array of birth rates.}
+\item{lambda}{Array of arrival (birth) rates.}
 
-\item{mu}{Array of death rates.}
+\item{mu}{Array of service (death) rates.}
 }
 \value{
-The discrete distribution of number of customers in system.
+{pn,n≥0}, The discrete distribution of number of customers in system.
 }
 \description{
-Solves the flow balance equation for a birth-death type queue with finite capacity n.
+The Birth Death Process is used to solve the flow balance equation for a
+birth-death type queue with finite capacity n.
 }
 \examples{
-mu = c(1, 2, 2)
-lambda = c(3, 2, 1)
-pn = BD.solve(lambda, mu)
-print(pn)
- 0.1176471 0.3529412 0.3529412 0.1764706
-Where the first element corresponds to p0, the second to p1, and so on.
+mu <- c(1, 2, 2)
+          lambda <- c(3, 2, 1)
+
+          pn = BD.solve(lambda, mu)
+          print(pn)
+
+          [1] 0.1176471 0.3529412 0.3529412 0.1764706
 }
