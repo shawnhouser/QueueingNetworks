@@ -18,6 +18,80 @@ knitr::opts_chunk$set(echo = TRUE)
 
 <!-- https://htmlpreview.github.io/?https://github.com/angyalkavalcsics/QueueingNetworks/blob/main/QueueingNetworks.html -->
 
+## How To Install
+
+- To install a package from Github for the first time, first install the devtools package. This can be downloaded from the CRAN.
+```{r install1, eval = FALSE}
+install.packages("devtools", repos = "http://cran.us.r-project.org")
+```
+- Load the devtools package.
+```{r install2, eval = FALSE}
+library(devtools)
+```
+- Download the package from GitHub.
+```{r install3, eval = FALSE}
+install_github("angyalkavalcsics/QueueingNetworks/QinR")
+```
+- Load the package to use the functions.
+```{r install4}
+library (QinR)	
+```
+```{r printhelp, echo = FALSE}
+
+help_console <- function(topic, package,
+                         format=c("text", "html", "latex", "Rd"),
+                         before=NULL, after=NULL) {
+  # topic - the command for which help is required
+  # package - the package name with the required topic
+  # format - output format
+  # before - place code before the output e.g. "<blockquote>"
+  # after - place code after the output e.g. "</blockquote>"
+
+  # based on code by Noam Ross
+  #  http://www.noamross.net/archives/2013-06-18-helpconsoleexample/
+  # Stéphane Laurent
+  #  https://stackoverflow.com/questions/60468080/
+  #   print-an-r-help-file-vignette-as-output-into-an-r-html-notebook
+  # and Michael Sumner (mdsumner)
+  #  https://stackoverflow.com/questions/7495685/
+  #   how-to-access-the-help-documentation-rd-source-files-in-r
+
+  format <- match.arg(format)
+  if (!is.character(topic)) topic <- deparse(substitute(topic))
+  db <- tools::Rd_db(package)
+  helpfile <- db[paste0(topic, ".Rd")][[1]]
+
+  hs <- capture.output(
+    switch(
+      format,
+      text = tools::Rd2txt(helpfile),
+      html = tools::Rd2HTML(
+        helpfile,
+        package = "",
+        stages = c("install", "render")
+      ),
+      latex = tools::Rd2latex(helpfile),
+      Rd = tools:::prepare_Rd(helpfile)
+    )
+  )
+  if (format == "html") {
+    i <- grep("<body>", hs)
+    j <- grep("</body>", hs)
+    hs <- hs[(i+1):(j-1)]
+  }
+  hs <- c(before, hs, after)
+  hs <- cat(hs, sep = "\n")
+  invisible(hs)
+}
+```
+- Help files can be accessed using “?function name” and contain examples of how to use the functions.
+```{r install5, eval = FALSE}
+?mmc.summary
+```
+
+```{r showhelp, echo = FALSE, results = "asis"}
+help_console(mmc.summary, "QinR", format = "html")
+```
 ## Introduction
 
 Queueing theory is the mathematical study of the formation and function of queues.  A basic queueing system is a system where entities arrive at a facility requiring some service, they join a line, and wait for service from one or more servers. The results of queueing analysis can be used to offer faster customer service, increase traffic flow, improve order shipments from a warehouse, or to design data networks and call centers. In this first demonstration, we will use the random events of arrivals and service completions from a general distribution to demonstrate the development of a queue over time. We assume the reader has some previous knowledge of queueing networks. 
