@@ -71,9 +71,6 @@ mmc.summary <- function(lambda, mu, c, tol,
       for(n in 1:c){
          p_n = append(p_n, ((a^n)/factorial(n))*p0)
       }
-      #for(n in (c+1):(10*c)){
-      #   p_n = append(p_n, ((a^n)/(factorial(c)*c^(n-c)))*p0)
-      #}
       
       iter = c+1
       while(sum(p_n) < (1-tol)){
