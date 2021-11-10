@@ -49,26 +49,28 @@ cjn.summary <- function(v, mu, N, K, convolution = TRUE){
       }
       L_i = colSums(p_bar)
       W_i = L_i/lambda_i
-      
-      p = matrix(0, N+1, K)
+      Lq_i = L_i - (lambda_i / mu)
+      Wq_i = Lq_i / lambda_i
+      p_n = matrix(0, N+1, K)
       # iterates over n_i
       for(n_i in 0:(N-1)){
          # iterates over tau_i
          for(i in 1:K){
-            p[(n_i + 1), i] = (tau[i]^n_i)*((G[((N+1)-n_i),K] - tau[i]*G[((N+1)- n_i - 1),K])/G[(N+1), K])
+            p_n[(n_i + 1), i] = (tau[i]^n_i)*((G[((N+1)-n_i),K] - tau[i]*G[((N+1)- n_i - 1),K])/G[(N+1), K])
          }
       }
-      p[(N+1),] = (tau^N)/G[(N+1), K]
+      p_n[(N+1),] = (tau^N)/G[(N+1), K]
       
       
       rnames <- rbind("Node i throughput", "Utilization at node i", 
-                      "Probability node i is idle", "Mean time at node i","Mean number at node i")
-      res <- data.frame(cbind(rnames, round(rbind(lambda_i, rho_i, I_i, W_i, L_i), 4)))
+                      "Probability node i is idle", "Mean time at node i","Mean number at node i",
+                      "Mean queue time at node i", "Mean number in queue at node i")
+      res <- data.frame(cbind(rnames, round(rbind(lambda_i, rho_i, I_i, W_i, L_i, Wq_i, Lq_i), 4)))
       names(res)<- c("Definition", sprintf("node%2d",seq(1:K)))
-      
-      return(list('marginal_probabilities' = p, 'res' = res, 'system_throughput' = system_throughput,
-                  'throughput_i' = lambda_i, 'rho_i' = rho_i, 'idle' = I_i, 
-                  'W_i' = W_i, 'L_i' = L_i))
+      row.names(res) <- seq(1:7)
+      return(list('marginal_probabilities' = p_n, 'res' = res, 'system_throughput' = system_throughput,
+                  'lambda_i' = lambda_i, 'rho_i' = rho_i, 'idle' = I_i, 
+                  'W_i' = W_i, 'L_i' = L_i, 'Lq_i' = Lq_i, 'Wq_i' = Wq_i))
    }
    ################################################################################
    # Mean Value Analysis algorithm
@@ -104,28 +106,23 @@ cjn.summary <- function(v, mu, N, K, convolution = TRUE){
       # Little's law : L = lambda * W
       # node i throughput
       lambda_i = L_i/W_i
+      Lq_i = L_i - (lambda_i / mu)
+      Wq_i = Lq_i / lambda_i
       # node i utilization
       rho_i = lambda_i / mu
       I_i = 1 - rho_i
       system_throughput = mean(rho_i/tau)
       rnames <- rbind("Node i throughput", "Utilization at node i", 
-                      "Probability node i is idle", "Mean time at node i","Mean number at node i")
-      res <- data.frame(cbind(rnames, round(rbind(lambda_i, rho_i, I_i, W_i, L_i), 4)))
+                      "Probability node i is idle", "Mean time at node i","Mean number at node i",
+                      "Mean queue time at node i", "Mean number in queue at node i")
+      res <- data.frame(cbind(rnames, round(rbind(lambda_i, rho_i, I_i, W_i, L_i,  Wq_i, Lq_i), 4)))
       names(res)<- c("Definition", sprintf("node%2d",seq(1:K)))
-      
+      row.names(res) <- seq(1:7)
       return(list('res' = res, 'system_throughput' = system_throughput,
-                  'throughput_i' = lambda_i, 'rho_i' = rho_i, 'idle' = I_i, 
-                  'W_i' = W_i, 'L_i' = L_i))
+                  'lambda_i' = lambda_i, 'rho_i' = rho_i, 'idle' = I_i, 
+                  'W_i' = W_i, 'L_i' = L_i, 'Lq_i' = Lq_i, 'Wq_i' = Wq_i))
    }
 }
-
-
-
-
-
-
-
-
 
 
 
