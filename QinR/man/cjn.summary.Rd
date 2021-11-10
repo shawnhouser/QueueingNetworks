@@ -7,13 +7,13 @@
 cjn.summary(v, mu, N, K, convolution = TRUE)
 }
 \arguments{
-\item{v}{solution to vR = v}
+\item{v}{Solution to vR = v}
 
 \item{mu}{Array of service rates}
 
-\item{N}{number of customers in the network}
+\item{N}{Number of customers in the network}
 
-\item{K}{number of nodes}
+\item{K}{Number of nodes}
 
 \item{convolution}{If true, uses convolution algorithm,}
 }
@@ -24,45 +24,71 @@ A summary of the measures of performance.
 Closed Single-Server Jackson Network
 }
 \examples{
-# given service rates mu = c(4, 1, 3)
-number of customers in the system N = 3
-number of nodes in the network K = 3
-given service rates
+R = matrix(c(0, 0.75, 0.25,0.6666666667, 0, 0.3333333333,1, 0, 0), nrow = 3, ncol = 3, byrow = TRUE)
+v = solve.routing(R)
 mu = c(4, 1, 3)
 N = 3
 K = 3
 
-First the using the convolution algorithm
-q <- cjn.summary(v, mu, N, K, convolution = TRUE)
+Using the convolution algorithm
+q.convolution <- cjn.summary(v, mu, N, K, convolution = TRUE)
 
-qt <- q$res
-qt \%>\%
-  gt() \%>\%
-  tab_header(
-    title = md("Measures of Performance for Closed Jackson Networks"))
-marginal distribution
-print(q$marginal_probabilities)
-
-          [,1]       [,2]        [,3]
+q.convolution$marginal_probabilities
+[,1]       [,2]        [,3]
 [1,] 0.68248175 0.04744526 0.788321168
 [2,] 0.22554745 0.12481752 0.170802920
 [3,] 0.07226277 0.29562044 0.035036496
 [4,] 0.01970803 0.53211679 0.005839416
 
-system throughput
-print(q$system_throughput)
+q.convolution$res
+Definition node 1 node 2 node 3
+X            Node i throughput 1.2701 0.9526  0.635
+X.1      Utilization at node i 0.3175 0.9526 0.2117
+X.2 Probability node i is idle 0.6825 0.0474 0.7883
+X.3        Mean time at node i 0.3379 2.4276 0.4069
+L_i      Mean number at node i 0.4292 2.3124 0.2584
 
+q.convolution$system_throughput
+[1] 2.857664
+q.convolution$throughput_i
+[,1]      [,2]      [,3]
+[1,] 1.270073 0.9525547 0.6350365
+
+q.convolution$rho_i
+[,1]      [,2]      [,3]
+[1,] 0.3175182 0.9525547 0.2116788
+
+q.convolution$W_i
+[,1]     [,2]      [,3]
+[1,] 0.337931 2.427586 0.4068966
+
+q.convolution$L_i
+[1] 0.4291971 2.3124088 0.2583942
+
+
+Same inputs as above with the MVA Algorithm
+q.MVA <- cjn.summary(v, mu, N, K, convolution = FALSE)
+
+q.MVA$res
+Definition node 1 node 2 node 3
+lambda_i          Node i throughput 1.2701 0.9526  0.635
+rho_i         Utilization at node i 0.3175 0.9526 0.2117
+I_i      Probability node i is idle 0.6825 0.0474 0.7883
+W_i             Mean time at node i 0.3379 2.4276 0.4069
+L_i           Mean number at node i 0.4292 2.3124 0.2584
+
+q.MVA$system_throughput
 [1] 2.857664
 
-using same inputs as above with the MVA Algorithm
-q <- cjn.summary(v, mu, N, K, convolution = FALSE)
+q.MVA$throughput_i
+[1] 1.2700730 0.9525547 0.6350365
 
-qt <- q$res
-qt \%>\%
-  gt() \%>\%
-  tab_header(
-     title = md("Measures of Performance for Closed Jackson Networks"))
+q.MVA$rho_i
+[1] 0.3175182 0.9525547 0.2116788
 
-print(q$system_throughput)
-[1] 2.857664
+q.MVA$W_i
+[1] 0.3379310 2.4275862 0.4068966
+
+q.MVA$L_i
+[1] 0.4291971 2.3124088 0.2583942
 }

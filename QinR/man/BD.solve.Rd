@@ -12,7 +12,7 @@ BD.solve(lambda, mu)
 \item{mu}{Array of service (death) rates.}
 }
 \value{
-{pn,n≥0}, The discrete distribution of number of customers in system.
+The discrete distribution of number of customers in system.
 }
 \description{
 The Birth Death Process is used to solve the flow balance equation for a
@@ -20,10 +20,9 @@ birth-death type queue with finite capacity n.
 }
 \examples{
 mu <- c(1, 2, 2)
-          lambda <- c(3, 2, 1)
+lambda <- c(3, 2, 1)
+pn = BD.solve(lambda, mu)
+print(pn)
 
-          pn = BD.solve(lambda, mu)
-          print(pn)
-
-          [1] 0.1176471 0.3529412 0.3529412 0.1764706
+[1] 0.1176471 0.3529412 0.3529412 0.1764706
 }
