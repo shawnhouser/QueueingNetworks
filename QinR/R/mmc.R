@@ -4,10 +4,10 @@
 #' mm1.summary() returns a data frame of performance measures for the queue and
 #' an array with the discrete distribution of number of customers in system.
 #'  Entering “plot_pn = TRUE”, the function plots the distribution.
-#'  For m/m/1 queues, by entering “plot_waitSys = TRUE” the function plots the probability
-#'  density function of the waiting time in system,  “plot_waitQ = TRUE”  plots
+#'  For m/m/1 queues, by entering "plot_waitSys = TRUE" the function plots the probability
+#'  density function of the waiting time in system, "plot_waitQ = TRUE" plots
 #'  the probability density function of the waiting time in queue.
-#'  The function stops finding additional probabilities when ∑pn<1−tol.
+#'  The function stops finding additional probabilities when the sum of the pn is less than 1 - tol.
 #'
 #' @param lambda Arrival Rate
 #' @param mu Service Rate
@@ -16,8 +16,8 @@
 #' @param plot_waitSys Boolean set to true for a M/M/1, will plot the probability density function of the waiting time in system
 #' @param plot_waitQ Boolean set to true for a M/M/c, plot the probability density function of the waiting time in queue
 #'
-#' @return Returns a data frame of performance measures,an array with the discrete distribution of
-#' number of customers in systemand plots of waiting times.
+#' @return Returns a data frame of performance measures, an array with the discrete distribution of
+#' number of customers in system and plots of waiting times.
 #' @export
 #'
 #' @examples M/M/1 Markovian model
