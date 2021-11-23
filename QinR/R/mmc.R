@@ -7,7 +7,7 @@
 #'  For m/m/1 queues, by entering "plot_waitSys = TRUE" the function plots the probability
 #'  density function of the waiting time in system, "plot_waitQ = TRUE" plots
 #'  the probability density function of the waiting time in queue.
-#'  The function stops finding additional probabilities when the sum of the pn is less than 1 - tol.
+#'  The function stops finding additional probabilities when the sum of the pn is less than 1 - tol, the tolerance level.
 #'
 #' @param lambda Arrival Rate
 #' @param mu Service Rate
@@ -93,7 +93,6 @@
 #' mmc.queue$L_q
 #'[1] 0.2267229
 #'
-
 mmc.summary <- function(lambda, mu, c, tol,
                         plot_pn = FALSE,
                         plot_waitSys = FALSE,
@@ -167,9 +166,6 @@ mmc.summary <- function(lambda, mu, c, tol,
       for(n in 1:c){
          p_n = append(p_n, ((a^n)/factorial(n))*p0)
       }
-      #for(n in (c+1):(10*c)){
-      #   p_n = append(p_n, ((a^n)/(factorial(c)*c^(n-c)))*p0)
-      #}
 
       iter = c+1
       while(sum(p_n) < (1-tol)){

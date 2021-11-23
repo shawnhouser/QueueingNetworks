@@ -28,18 +28,18 @@ mmc.summary(
 \item{plot_waitQ}{Boolean set to true for a M/M/c, plot the probability density function of the waiting time in queue}
 }
 \value{
-Returns a data frame of performance measures,an array with the discrete distribution of
-number of customers in systemand plots of waiting times.
+Returns a data frame of performance measures, an array with the discrete distribution of
+number of customers in system and plots of waiting times.
 }
 \description{
 Given inputs arrival rate, service rate, and number of servers c=1 the function
 mm1.summary() returns a data frame of performance measures for the queue and
 an array with the discrete distribution of number of customers in system.
  Entering “plot_pn = TRUE”, the function plots the distribution.
- For m/m/1 queues, by entering “plot_waitSys = TRUE” the function plots the probability
- density function of the waiting time in system,  “plot_waitQ = TRUE”  plots
+ For m/m/1 queues, by entering "plot_waitSys = TRUE" the function plots the probability
+ density function of the waiting time in system, "plot_waitQ = TRUE" plots
  the probability density function of the waiting time in queue.
- The function stops finding additional probabilities when ∑pn<1−tol.
+ The function stops finding additional probabilities when the sum of the pn is less than 1 - tol, the tolerance level.
 }
 \examples{
 M/M/1 Markovian model

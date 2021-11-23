@@ -15,13 +15,15 @@ cjn.summary(v, mu, N, K, convolution = TRUE)
 
 \item{K}{Number of nodes}
 
-\item{convolution}{If true, uses convolution algorithm,}
+\item{convolution}{Boolean. If true, uses convolution algorithm,}
 }
 \value{
 A summary of the measures of performance.
 }
 \description{
-Closed Single-Server Jackson Network
+A system where N entities continuously travel inside the network. When convolution
+is set to true, the function uses Buzen’s algorithm to solve for the summary statistics.
+ Otherwise the function will use Mean Value Analysis.
 }
 \examples{
 R = matrix(c(0, 0.75, 0.25,0.6666666667, 0, 0.3333333333,1, 0, 0), nrow = 3, ncol = 3, byrow = TRUE)
