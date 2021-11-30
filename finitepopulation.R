@@ -50,7 +50,7 @@ for (n in 1:N) {
 }
 p0 <- (1/sum(bottleneck))
 pn <- c(bottleneck*p0)
-
+pn <- as.numeric(pn)
 sum(pn)
 print(pn)
 
@@ -64,21 +64,4 @@ W_q <- as.numeric(L_q/(lambda*(N-L)))
 W_q
 lambda_eff <- as.numeric(mu*(1-p0))
 lambda_eff
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
