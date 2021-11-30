@@ -1,15 +1,12 @@
 ---
 title: "Statistical Package for Queueing in R"
+subtitle: Angyalka Valcsics, Pearl Armstrong, Shawn Houser
 author: "University of Southern Maine"
-date: "9/14/2021"
+date: "12/7/2021"
 output:
   html_document: default
   word_document: default
   pdf_document: default
-subtitle: Angyalka Valcsics, Pearl Armstrong, Shawn Houser
-header-includes:
-- \usepackage{placeins}
-- \usepackage{bookends}
 ---
 
 ```{r setup, include=FALSE}
@@ -17,6 +14,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 <!-- https://htmlpreview.github.io/?https://github.com/angyalkavalcsics/QueueingNetworks/blob/main/QueueingNetworks.html -->
+
+This package was created as a graduate project for a course in Queueing Theory and we dedicate it to Professor Muhammad El-Taha.
 
 ## How To Install
 
@@ -483,6 +482,126 @@ pr <- 1 - ((r^c * p0)/(factorial(c)*(1 - rho)))*exp(-(c*mu - lambda)*t)
 print(pr)
 ```
 
+## Single-Server Finite Population Queue
+
+```{r finitesummary, echo=FALSE}
+########################################################################
+# Finite Population Single Server Model (N >= 1)
+########################################################################
+# lambda := arrival rate
+# mu := service rate
+# N := system capacity
+finitepopulation.summary <- function(lambda, mu, N){
+   a <- lambda / mu
+   if(N <= 100){
+      bottleneck <- matrix(1, nrow = N+1, ncol = 1)
+      for (n in 1:N) {
+         bottleneck[n+1,1] <- bottleneck[n, 1]*(N-n+1)*a
+      }
+      p0 <- (1/sum(bottleneck))
+      p_n <- c(bottleneck*p0)
+      
+      L_q <- N - ((lambda + mu)/lambda)*(1-p0)
+      L <- N - (mu/lambda)*(1-p0)
+      W <- N/(mu*(1-p0)) - 1/lambda
+      W_q <- L_q/(lambda*(N-L))
+      lambda_eff <- mu*(1-p0)
+      I <- p0
+      rnames <- rbind("Idle time", "Mean time in system",
+                      "Mean time in queue", "Mean number in system", 
+                      "Mean number in queue", "Effective arrival rate")
+      res <- data.frame(cbind(rnames, round(rbind(I, W, W_q, L, L_q, lambda_eff), 4)))
+      names(res)<- c("Definition", "Result")
+      return(list('pn' = p_n, 'res' = res, 'p0' = I, 'W' = W, 'W_q' = W_q, 'L' = L, 
+                  'L_q' = L_q, 'lambda_eff' = lambda_eff))
+   }
+   else{
+      # 'Multiple Precision Floating-Point Reliably'
+      # Pro: we can do this for very large N
+      # Con: we have to depend on an external package that may change
+      
+      if("Rmpfr" %in% rownames(installed.packages()) == FALSE) {install.packages("Rmpfr")}
+      suppressWarnings(suppressMessages(library(Rmpfr)))
+      bottleneck <- mpfr(matrix(1, nrow = N+1, ncol = 1), 300)
+      for (n in 1:N) {
+         bottleneck[n+1,1] <- bottleneck[n, 1]*mpfr((N-n+1)*a, 300)
+      }
+      p0 <- (1/sum(bottleneck))
+      p_n <- c(bottleneck*p0)
+      p_n <- as.numeric(p_n)
+      
+      L_q <- as.numeric(N - ((lambda + mu)/lambda)*(1-p0))
+      L <- as.numeric(N - (mu/lambda)*(1-p0))
+      W <- as.numeric(N/(mu*(1-p0)) - 1/lambda)
+      W_q <- as.numeric(L_q/(lambda*(N-L)))
+      lambda_eff <- as.numeric(mu*(1-p0))
+      I <- as.numeric(p0)
+      rnames <- rbind("Idle time", "Mean time in system",
+                      "Mean time in queue", "Mean number in system", 
+                      "Mean number in queue", "Effective arrival rate")
+      res <- data.frame(cbind(rnames, round(rbind(I, W, W_q, L, L_q, lambda_eff), 4)))
+      names(res)<- c("Definition", "Result")
+      return(list('pn' = p_n, 'res' = res,'p0' = I, 'W' = W, 'W_q' = W_q, 'L' = L, 
+                  'L_q' = L_q, 'lambda_eff' = lambda_eff))
+   }
+}
+```
+
+Suppose we had a system where there is only one server and a finite population of $N$ customers which all have the same arrival rate $\lambda$. We can use the finitepopulation.summary() function. This function takes as inputs the arrival rate, the service rate, and the size of the finite population $N$. When $N$ is larger than 100, we employ the Rmpfr library which performs multiple-precision floating-point computations in an efficient way. The function will check if the user has this package installed. If not, it will install the package then load the library. 
+
+<br />
+
+Bare with us as we discuss the nice way we avoided calculating factorials in this function. For a finite population single-server model, we have that the probability that there are no customers in the system is
+
+$$p_0 = \left[ \sum_{n = 0}^{N} \dfrac{N! \left(\dfrac{\lambda}{\mu}\right)^{n}}{(N-n)!} \right]^{-1}$$
+When $n=0$, let
+$$S_{0} = \dfrac{N! \left(\dfrac{\lambda}{\mu}\right)^{n}}{(N-n)!} = \dfrac{N! \left(\dfrac{\lambda}{\mu}\right)^{0}}{N!} = 1$$
+When $n=1$,
+
+$$S_{1} = \dfrac{N! \left(\dfrac{\lambda}{\mu}\right)^{n}}{(N-n)!} = \dfrac{N(N-1)! \left(\dfrac{\lambda}{\mu}\right)^{1}}{(N-1)!} = N \left(\dfrac{\lambda}{\mu}\right)^{1} = S_{0} \cdot N \cdot \dfrac{\lambda}{\mu}$$
+
+When $n=2$,
+
+$$S_{2} = \dfrac{N! \left(\dfrac{\lambda}{\mu}\right)^{n}}{(N-n)!} = \dfrac{N(N-1)(N-2)! \left(\dfrac{\lambda}{\mu}\right)^{2}}{(N-2)!} = N(N-1) \left(\dfrac{\lambda}{\mu}\right)^{2} = S_{1} \cdot (N-1) \cdot \dfrac{\lambda}{\mu}$$
+When $n=3$,
+
+$$S_{3} = \dfrac{N! \left(\dfrac{\lambda}{\mu}\right)^{n}}{(N-n)!} = \dfrac{N(N-1)(N-2)(N-3)! \left(\dfrac{\lambda}{\mu}\right)^{3}}{(N-3)!} = N(N-1)(N-2) \left(\dfrac{\lambda}{\mu}\right)^{3} = S_{2} \cdot (N-2) \cdot \dfrac{\lambda}{\mu}$$
+
+We continue on in this way, storing each value, using the previous one to calculate the next value up until the $N^{th}$ value. This will ultimately make up the sum that is used to calculate $p_0$. Then
+
+$$p_{0} = \left[ \sum_{n=0}^{N} S_{n} \right]^{-1}$$
+This value is then used to calculate all performance measures. Let's see an example for how the function works.
+
+```{r finitesummaryex1}
+lambda <- 0.025
+mu <- 1
+N <- 4
+q <- finitepopulation.summary(lambda, mu, N)
+pt <- q$res
+pt %>%
+   gt() %>%
+   tab_header(
+      title = md("Performance Measures for Single-Server Finite Population Queue"))
+```
+
+<br />
+
+For $N > 100$, we avoid floating-point error.
+```{r finitesummaryex2}
+lambda <- 10
+mu <- 5000
+N <- 300
+q <- finitepopulation.summary(lambda, mu, N)
+pt <- q$res
+pt %>%
+   gt() %>%
+   tab_header(
+      title = md("Performance Measures for Single-Server Finite Population Queue"))
+
+# See that this sum is equal to 1 :)
+sum(q$pn)
+```
+
 ## Open Single-Server Jackson Networks
 
 Suppose we have an open Jackson network where entities may arrive from the outside at any node according to a Poisson process and entities are serviced according to an exponential distribution. There is no limit on queue capacity at any node and there is a probability, possibly nonzero, that an entity will leave the network at some node $i$ upon completion of service. We can use the function ojn.summary(R, gamma, mu, maxMarginalProb) to find performance measures for this system. This stands for 'Open Jackson Network Summary'. This function takes as inputs the routing matrix R, the mean arrival rate to each node gamma, the mean service rate of each node mu, and the max number of marginal probabilities you would like returned for each node. Please keep in mind that in order to avoid rounding error, it is necessary to keep the probabilities in the routing matrix as fractions if they are, for example, non-terminating, recurring decimal numbers. 
@@ -717,3 +836,4 @@ print(q$system_throughput)
       
 ```
 
+<br />
