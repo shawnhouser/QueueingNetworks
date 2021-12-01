@@ -2,7 +2,7 @@
 #'
 #' Finds v given the routing matrix R, solution to vR = v.
 #'
-#' @param R Matrix of routing probabilites
+#' @param R Matrix of routing probabilites.
 #'
 #' @return Returns vR=v such that the sum of v_i's = 1.
 #' @export
