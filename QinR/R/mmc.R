@@ -11,7 +11,7 @@
 #'
 #' @param lambda Arrival Rate
 #' @param mu Service Rate
-#' @param c Number of Servers
+#' @param c Number of Servers.
 #' @param plot_pn Boolean set to true, plots the distribution.
 #' @param plot_waitSys Boolean set to true for a M/M/1, will plot the probability density function of the waiting time in system.
 #' @param plot_waitQ Boolean set to true for a M/M/c, plot the probability density function of the waiting time in queue.
@@ -60,7 +60,7 @@
 #' mm1.queue$L_q
 #'[1] 7.90291
 #'
-#' Markovian queueing models with parallel channels: M/M/c/∞/∞ queues.
+#' Markovian queueing models with parallel channels: M/M/c/∞/∞ queues
 #'
 #' mmc.queue <- mmc.summary(lambda = 4, mu = 4.4545, c = 2, tol = 0.01, plot_pn = TRUE)
 #'[1] "System is stable."
@@ -93,6 +93,7 @@
 #' mmc.queue$L_q
 #'[1] 0.2267229
 #'
+
 mmc.summary <- function(lambda, mu, c, tol,
                         plot_pn = FALSE,
                         plot_waitSys = FALSE,
@@ -166,6 +167,9 @@ mmc.summary <- function(lambda, mu, c, tol,
       for(n in 1:c){
          p_n = append(p_n, ((a^n)/factorial(n))*p0)
       }
+      #for(n in (c+1):(10*c)){
+      #   p_n = append(p_n, ((a^n)/(factorial(c)*c^(n-c)))*p0)
+      #}
 
       iter = c+1
       while(sum(p_n) < (1-tol)){

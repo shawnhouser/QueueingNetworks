@@ -19,7 +19,7 @@ mmc.summary(
 
 \item{mu}{Service Rate}
 
-\item{c}{Number of Servers}
+\item{c}{Number of Servers.}
 
 \item{plot_pn}{Boolean set to true, plots the distribution.}
 
@@ -81,7 +81,7 @@ mm1.queue$L
 mm1.queue$L_q
 [1] 7.90291
 
-Markovian queueing models with parallel channels: M/M/c/∞/∞ queues.
+Markovian queueing models with parallel channels: M/M/c/∞/∞ queues
 
 mmc.queue <- mmc.summary(lambda = 4, mu = 4.4545, c = 2, tol = 0.01, plot_pn = TRUE)
 [1] "System is stable."

@@ -4,7 +4,7 @@
 \alias{ojn.summary}
 \title{Open Jackson Networks}
 \usage{
-ojn.summary(R, gamma, mu, maxMarginalProb)
+ojn.summary(R, gamma, mu)
 }
 \arguments{
 \item{R}{Routing matrix R.}

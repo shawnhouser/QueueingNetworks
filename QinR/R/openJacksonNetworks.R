@@ -1,7 +1,8 @@
+
 #' Open Jackson Networks
 #'
 #' When convolution is set to true, the function uses Buzen’s algorithm to solve
-#'for the summary statistics. Otherwise the function will use Mean Value Analysis.
+#' for the summary statistics. Otherwise the function will use Mean Value Analysis.
 #'In order to avoid rounding error, it is necessary to keep the probabilities in
 #'the routing matrix as fractions if they are non-terminating, recurring decimal numbers.
 #'
@@ -69,7 +70,7 @@
 #' openjackson.queue$L
 #'[1] 60.94041
 
-ojn.summary <- function(R, gamma, mu, maxMarginalProb){
+ojn.summary <- function(R, gamma, mu){
    n = nrow(R)
    m = ncol(R)
    K = length(mu)
@@ -84,22 +85,25 @@ ojn.summary <- function(R, gamma, mu, maxMarginalProb){
    Wq_i = Lq_i / lambda_i
    L = sum(L_i)
    W = L/(sum(gamma))
-   # find marginals
-   p_n = matrix(0, maxMarginalProb, K)
-   p_n[1,] = 1-rho_i
-   for (i in 1:(maxMarginalProb-1)) {
-      p_n[i+1,]=(rho_i^i)*(1-rho_i)
-   }
+   # are the marginals just rho_i ^ n?
    rnames <- rbind("Node i throughput", "Utilization at node i",
                    "Probability node i is idle", "Mean time at node i","Mean number at node i",
                    "Mean queue time at node i", "Mean number in queue at node i")
    res <- data.frame(cbind(rnames, round(rbind(lambda_i, rho_i, I_i, W_i, L_i, Wq_i, Lq_i), 4)))
    names(res)<- c("Definition", sprintf("node%2d",seq(1:K)))
-   return(list('marginal_probabilities' = p_n, 'res' = res,
+   # 'marginal_probabilities' = p,
+   return(list('res' = res,
                'throughput_i' = lambda_i, 'rho_i' = rho_i, 'idle' = I_i,
                'W_i' = W_i, 'L_i' = L_i, 'Wq_i' = Wq_i, 'Lq_i' = Lq_i,
                'W' = W, 'L' = L))
 }
+
+
+
+
+
+
+
 
 
 
