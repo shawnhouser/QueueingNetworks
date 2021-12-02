@@ -3,21 +3,21 @@
 #' Given inputs arrival rate, service rate, and number of servers c=1 the function
 #' mm1.summary() returns a data frame of performance measures for the queue and
 #' an array with the discrete distribution of number of customers in system.
-#'  Entering <U+201C>plot_pn = TRUE<U+201D>, the function plots the distribution.
-#'  For m/m/1 queues, by entering <U+201C>plot_waitSys = TRUE<U+201D> the function plots the probability
-#'  density function of the waiting time in system,  <U+201C>plot_waitQ = TRUE<U+201D>  plots
+#'  Entering "plot_pn = TRUE", the function plots the distribution.
+#'  For m/m/1 queues, by entering "plot_waitSys = TRUE" the function plots the probability
+#'  density function of the waiting time in system, "plot_waitQ = TRUE" plots
 #'  the probability density function of the waiting time in queue.
-#'  The function stops finding additional probabilities when <U+2211>pn<1<U+2212>tol.
+#'  The function stops finding additional probabilities when the sum of the pn is less than 1 - tol, the tolerance level.
 #'
 #' @param lambda Arrival Rate
 #' @param mu Service Rate
-#' @param c Number of Servers. c= 1 is a
+#' @param c Number of Servers.
 #' @param plot_pn Boolean set to true, plots the distribution.
-#' @param plot_waitSys Boolean set to true for a M/M/1, will plot the probability density function of the waiting time in system
-#' @param plot_waitQ Boolean set to true for a M/M/c, plot the probability density function of the waiting time in queue
+#' @param plot_waitSys Boolean set to true for a M/M/1, will plot the probability density function of the waiting time in system.
+#' @param plot_waitQ Boolean set to true for a M/M/c, plot the probability density function of the waiting time in queue.
 #'
-#' @return Returns a data frame of performance measures,an array with the discrete distribution of
-#' number of customers in systemand plots of waiting times.
+#' @return Returns a data frame of performance measures, an array with the discrete distribution of
+#' number of customers in system and plots of waiting times.
 #' @export
 #'
 #' @examples
