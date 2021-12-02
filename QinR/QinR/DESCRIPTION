@@ -1,0 +1,11 @@
+Package: QinR
+Type: Package
+Title: QinR: Queueing Models in R
+Version: 0.1.3
+Author: Angyalka Valcsics, Pearl Armstrong, Shawn Houser
+Maintainer: Pearl Armstrong <pearl.armstrong@maine.edu>
+Description:  QinR: Statistical Package for Queueing in R
+License: Public
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.2
